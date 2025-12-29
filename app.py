@@ -4,7 +4,15 @@ import streamlit as st
 import numpy as np
 import json
 import sqlite3
-import joblib
+try:
+    import joblib
+except Exception:
+    joblib = None
+    try:
+        from sklearn.externals import joblib as _sk_joblib
+        joblib = _sk_joblib
+    except Exception:
+        joblib = None
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
 from PIL import Image
@@ -25,6 +33,9 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 @st.cache_resource
 def load_crop_model():
     try:
+        if joblib is None:
+            st.sidebar.error("❌ Python package 'joblib' is not installed. Install it with `pip install joblib` and redeploy the app.")
+            return None
         if not os.path.exists(MODEL_CROP_PATH):
             st.sidebar.error(f"❌ Crop model file not found at {MODEL_CROP_PATH}")
             return None
