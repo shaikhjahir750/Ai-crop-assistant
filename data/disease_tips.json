@@ -1,0 +1,26 @@
+{
+  "Healthy": [
+    "No treatment required. Continue good agronomic practices and regular monitoring.",
+    "Maintain proper spacing and irrigation management to reduce future disease risk.",
+    "Keep records of crop health and perform periodic scouting to detect early symptoms."
+  ],
+  "Powdery": [
+    "Apply sulphur-based fungicides or potassium bicarbonate sprays as first-line options.",
+    "Use neem oil or horticultural oils for an organic control approach.",
+    "Improve air circulation (prune dense canopies) and reduce leaf wetness—avoid overhead irrigation at night.",
+    "Remove and safely dispose of heavily infected leaves to reduce inoculum.",
+    "If applying chemical fungicides, follow label directions and local extension advice for product choice, timing and dosage."
+  ],
+  "Rust": [
+    "Apply protective copper-based fungicides or multi-site contact fungicides for early/manageable infections.",
+    "For severe infections, consider approved systemic fungicides following local guidelines and resistance management practices.",
+    "Remove and destroy heavily infected material; do not compost symptomatic tissue.",
+    "Reduce leaf wetness by avoiding overhead irrigation and improving spacing/air flow.",
+    "Rotate crops and plant resistant varieties where available to reduce long-term rust pressure."
+  ],
+  "default": [
+    "Symptoms unclear — retake pictures from multiple leaves/angles and re-test.",
+    "Consult your local agricultural extension service for product recommendations and precise dosages.",
+    "Use integrated disease management: cultural controls, resistant varieties, and targeted chemical or biological controls when necessary."
+  ]
+}

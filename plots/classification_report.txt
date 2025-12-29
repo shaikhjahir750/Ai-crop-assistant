@@ -1,0 +1,12 @@
+CLASSIFICATION REPORT
+=====================
+
+              precision    recall  f1-score   support
+
+     Healthy       0.90      0.95      0.93        20
+     Powdery       0.90      0.95      0.93        20
+        Rust       1.00      0.90      0.95        20
+
+    accuracy                           0.93        60
+   macro avg       0.94      0.93      0.93        60
+weighted avg       0.94      0.93      0.93        60

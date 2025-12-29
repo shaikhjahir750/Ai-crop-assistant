@@ -1,0 +1,145 @@
+{
+  "rice": [
+    "Prefer clayey loam soils with good water retention; transplant or direct-seed depending on local practice.",
+    "Maintain standing water during early vegetative stages and ensure drainage before harvest.",
+    "Apply nitrogen in split doses (basal + top-dress); follow soil test for P and K.",
+    "Use disease-resistant varieties when available and monitor for blast and sheath blight."
+  ],
+  "maize": [
+    "Plant in well-drained fertile soils and full sunlight; avoid waterlogging.",
+    "Apply higher nitrogen during vegetative growth and potassium during grain filling.",
+    "Follow recommended spacing (e.g., 60 x 20–30 cm) and remove weeds early.",
+    "Scout for stem borers and fall armyworm; apply IPM measures as needed."
+  ],
+  "wheat": [
+    "Cool-season crop; sow during recommended window for your region.",
+    "Use well-drained loamy soils; avoid high temperatures during grain fill.",
+    "Use split nitrogen applications and monitor for rust diseases.",
+    "Rotate with non-host crops to reduce disease pressure."
+  ],
+  "chickpea": [
+    "Prefers well-drained soils; avoid waterlogging.",
+    "Inoculate seed with Rhizobium for better nitrogen fixation.",
+    "Apply phosphorus at sowing; conserve moisture during flowering.",
+    "Manage pod borer with monitoring and local IPM practices."
+  ],
+  "kidneybeans": [
+    "Grow on loamy, well-drained soils with neutral to slightly acidic pH.",
+    "Ensure adequate phosphorus at planting; moderate nitrogen only if needed.",
+    "Keep fields weed-free early and irrigate evenly; avoid waterlogging.",
+    "Harvest when pods are mature and dry quickly to avoid mold."
+  ],
+  "pigeonpeas": [
+    "Tolerant of dry conditions; best on deep, well-drained soils.",
+    "Minimal N required if well-nodulated; use recommended spacing.",
+    "Prune/maintain canopy for air circulation to reduce foliar diseases.",
+    "Use IPM for pod borers and consider early planting to escape pests."
+  ],
+  "mothbeans": [
+    "Suitable for light, sandy soils and arid conditions; drought tolerant.",
+    "Plant shallow; low fertilizer requirement—focus on soil organic matter.",
+    "Use as ground cover to reduce erosion; monitor for pod-sucking insects.",
+    "Harvest promptly to avoid shattering."
+  ],
+  "mungbean": [
+    "Short-duration crop; plant in warm weather with well-drained soils.",
+    "Inoculate seeds with Rhizobium to improve nitrogen fixation.",
+    "Keep weed pressure low during early growth; harvest timely to prevent losses.",
+    "Rotate with cereals to improve soil health."
+  ],
+  "blackgram": [
+    "Grows on light to medium soils; prefers warm climate.",
+    "Seed inoculation with Rhizobium improves yields.",
+    "Avoid excessive nitrogen; apply P and K as per soil test.",
+    "Monitor for foliar diseases and use resistant varieties if available."
+  ],
+  "lentil": [
+    "Cool-season legume; prefers well-drained loamy soils.",
+    "Inoculate with Rhizobium and apply phosphorus at sowing if deficient.",
+    "Avoid waterlogging; rotate to reduce root rot risk.",
+    "Harvest at physiological maturity and dry properly."
+  ],
+  "pomegranate": [
+    "Thrives in deep, well-drained soils; avoid waterlogging.",
+    "Irrigate regularly during fruit development; reduce before harvest for better sweetness.",
+    "Prune to open canopy; fertilize based on leaf analysis.",
+    "Monitor for fruit borers and fungal diseases; use local recommendations for sprays."
+  ],
+  "banana": [
+    "Prefer deep, fertile soils with good organic matter and regular moisture.",
+    "High potassium requirement—apply as per soil/leaf analysis.",
+    "Use clean planting material to avoid viral diseases and practice sanitation.",
+    "Support plants if necessary and remove diseased material promptly."
+  ],
+  "mango": [
+    "Well-drained soils and full sun; protect young trees from wind.",
+    "Apply balanced fertilizer timed to flush cycles; potassium for fruit quality.",
+    "Prune for canopy management and thin fruits for size and quality.",
+    "Manage anthracnose and powdery mildew with good cultural practices and sprays."
+  ],
+  "grapes": [
+    "Require well-drained soils and trellis systems for training.",
+    "Prune annually to control yield and improve quality.",
+    "Manage powdery mildew and botrytis with canopy control and targeted fungicides.",
+    "Irrigate carefully—steady moisture is better than extremes."
+  ],
+  "watermelon": [
+    "Warm-season crop; prefers sandy loam and full sun.",
+    "Provide consistent moisture during fruit set; reduce irrigation before harvest for sweetness.",
+    "Use drip irrigation and plastic mulch to conserve moisture and reduce pests.",
+    "Rotate crops and monitor for bacterial fruit blotch and insect pests."
+  ],
+  "muskmelon": [
+    "Similar to watermelon; needs warm days and cool nights for best flavor.",
+    "Use well-drained beds and mulch; ensure adequate potassium for sweetness.",
+    "Harvest at optimum maturity (fragrance/slip) for best quality.",
+    "Protect from fruit flies and practice sanitation."
+  ],
+  "apple": [
+    "Temperate climates; choose cultivars and rootstocks suited to local chill hours.",
+    "Maintain soil fertility and practise regular pruning and training.",
+    "Thin fruits to improve size and reduce biennial bearing.",
+    "Monitor for codling moth and scab; use integrated pest management."
+  ],
+  "orange": [
+    "Deep, well-drained soils and full sun; steady irrigation for fruit enlargement.",
+    "Apply balanced NPK and micronutrients based on leaf analysis.",
+    "Protect from citrus greening by using certified planting material and monitoring.",
+    "Prune lightly and manage irrigation to avoid water stress."
+  ],
+  "papaya": [
+    "Quick-growing; prefers well-drained fertile soils and warm temperatures.",
+    "Plant with adequate spacing and protect young plants from wind.",
+    "Provide regular irrigation and organic manure; monitor for fruit flies.",
+    "Use disease-free planting material to avoid viral diseases."
+  ],
+  "coconut": [
+    "Thrives in sandy, well-drained soils with high sunlight and humidity.",
+    "Mulch and irrigate during dry periods; maintain soil organic matter.",
+    "Apply potassium and micronutrients for nut quality.",
+    "Control rhinoceros beetle and bud rot with sanitation and recommended measures."
+  ],
+  "coffee": [
+    "Grows under shade; prefer well-drained fertile soils and regular organic matter.",
+    "Prune to manage tree architecture and improve yields.",
+    "Monitor for coffee leaf rust and berry borer; use resistant varieties and IPM.",
+    "Proper post-harvest drying is crucial for quality."
+  ],
+  "cotton": [
+    "Warm-season crop on well-drained loamy soils; good tilth helps root growth.",
+    "Split nitrogen applications improve fiber quality; follow soil test recommendations.",
+    "Monitor for bollworms and aphids; use IPM and Bt hybrids where suitable.",
+    "Timely irrigation during boll development improves yield."
+  ],
+  "jute": [
+    "Grows well in alluvial soils with adequate moisture; avoid waterlogging at harvest.",
+    "Sow at recommended densities and apply P and K for fibre quality.",
+    "Harvest at the right retting stage for good fibre extraction.",
+    "Rotate and use healthy seedlings to reduce disease incidence."
+  ],
+  "default": [
+    "Follow local variety and sowing-time recommendations for the best results.",
+    "Base fertilizer applications on a soil test and maintain soil organic matter.",
+    "Monitor regularly for pests and diseases and adopt integrated pest management."
+  ]
+}
