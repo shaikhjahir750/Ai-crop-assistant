@@ -7,6 +7,14 @@ import sqlite3
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
 from PIL import Image
+try:
+    from supabase_client import insert_prediction, fetch_recommendations, get_client as get_supabase_client, sign_up, sign_in
+except Exception:
+    insert_prediction = None
+    fetch_recommendations = None
+    get_supabase_client = None
+    sign_up = None
+    sign_in = None
 
 # ==============================
 # APP CONFIG
@@ -127,13 +135,47 @@ def login_page():
                 if not email or not password:
                     st.warning("Please enter both email and password.")
                 else:
-                    user = get_user(email, password)
-                    if user:
-                        st.session_state.user = {"id": user[0], "name": user[1], "email": user[2]}
-                        st.session_state.page = "dashboard"
-                        st.success(f"Welcome back, {user[1]}!")
+                    # If Supabase client is configured, try Supabase Auth first
+                    if get_supabase_client is not None and sign_in is not None and get_supabase_client():
+                        try:
+                            resp = sign_in(email, password)
+                            success = False
+                            display_name = email
+                            # Support multiple response shapes
+                            if resp is None:
+                                success = False
+                            elif isinstance(resp, tuple) and len(resp) == 2:
+                                data, err = resp
+                                if not err:
+                                    success = True
+                            elif isinstance(resp, dict):
+                                # Look for user in common keys
+                                user_obj = None
+                                if resp.get('user'):
+                                    user_obj = resp.get('user')
+                                elif resp.get('data') and isinstance(resp.get('data'), dict) and resp['data'].get('user'):
+                                    user_obj = resp['data']['user']
+                                elif resp.get('session') and isinstance(resp.get('session'), dict) and resp['session'].get('user'):
+                                    user_obj = resp['session']['user']
+                                if user_obj:
+                                    success = True
+                                    display_name = user_obj.get('name') or user_obj.get('email') or display_name
+                            if success:
+                                st.session_state.user = {"id": None, "name": display_name, "email": email}
+                                st.session_state.page = "dashboard"
+                                st.success(f"Welcome back, {display_name}!")
+                            else:
+                                st.error("Invalid email or password.")
+                        except Exception as e:
+                            st.error(f"Auth failed: {e}")
                     else:
-                        st.error("Invalid email or password.")
+                        user = get_user(email, password)
+                        if user:
+                            st.session_state.user = {"id": user[0], "name": user[1], "email": user[2]}
+                            st.session_state.page = "dashboard"
+                            st.success(f"Welcome back, {user[1]}!")
+                        else:
+                            st.error("Invalid email or password.")
             
             st.markdown("---")
             st.write("Don't have an account?")
@@ -166,13 +208,35 @@ def register_page():
                 elif len(password) < 6:
                     st.warning("Password should be at least 6 characters long.")
                 else:
-                    if register_user(name, email, password):
-                        st.success("Account created successfully!")
-                        st.info("Please log in with your new account.")
-                        st.session_state.page = "login"
+                    # If Supabase is available, create user there
+                    if get_supabase_client is not None and sign_up is not None and get_supabase_client():
+                        try:
+                            resp = sign_up(email, password, {"name": name})
+                            created = False
+                            if resp is None:
+                                created = False
+                            elif isinstance(resp, tuple) and len(resp) == 2:
+                                data, err = resp
+                                if not err:
+                                    created = True
+                            elif isinstance(resp, dict) and (resp.get('user') or resp.get('data')):
+                                created = True
+                            if created:
+                                st.success("Account created successfully!")
+                                st.info("Please log in with your new account.")
+                                st.session_state.page = "login"
+                            else:
+                                st.error("Could not create account via Supabase.")
+                        except Exception as e:
+                            st.error(f"Registration failed: {e}")
                     else:
-                        st.error("Email already exists.")
-                        st.info("Please try logging in instead.")
+                        if register_user(name, email, password):
+                            st.success("Account created successfully!")
+                            st.info("Please log in with your new account.")
+                            st.session_state.page = "login"
+                        else:
+                            st.error("Email already exists.")
+                            st.info("Please try logging in instead.")
             
             st.markdown("---")
             st.write("Already have an account?")
@@ -317,6 +381,21 @@ def disease_detection_page():
                     st.warning("⚠️ Powdery mildew detected. See recommendations above.")
                 elif label == "Rust":
                     st.warning("⚠️ Rust detected. See recommendations above.")
+
+                # Attempt to save prediction to Supabase (if configured)
+                try:
+                    if insert_prediction is not None:
+                        payload = {
+                            "user_email": st.session_state.user['email'] if st.session_state.user else None,
+                            "type": "disease",
+                            "label": label,
+                            "confidence": float(confidence),
+                            "image_path": temp_path
+                        }
+                        insert_prediction(payload)
+                        st.info("Saved prediction to Supabase.")
+                except Exception as e:
+                    st.warning(f"Could not save to Supabase: {e}")
 
             except Exception as e:
                 st.error(f"Prediction failed: {e}")

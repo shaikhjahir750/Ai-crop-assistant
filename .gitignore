@@ -1,0 +1,10 @@
+.env
+*.pyc
+__pycache__/
+crop_app.db
+models/
+static/uploads/
+.vscode/
+*.h5
+*.pkl
+.DS_Store
