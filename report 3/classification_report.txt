@@ -1,0 +1,48 @@
+Classification Report:
+
+              precision    recall  f1-score   support
+
+      banana       1.00      1.00      1.00        88
+      barley       1.00      1.00      1.00       151
+ bittergourd       0.00      0.00      0.00         2
+   blackgram       1.00      1.00      1.00         2
+ blackpepper       1.00      1.00      1.00        22
+ bottlegourd       1.00      1.00      1.00         2
+     brinjal       1.00      1.00      1.00        15
+     cabbage       1.00      1.00      1.00         6
+    cardamom       1.00      1.00      1.00        11
+ cauliflower       1.00      1.00      1.00         3
+   coriander       0.98      1.00      0.99       101
+      cotton       1.00      1.00      1.00       125
+    cucumber       1.00      1.00      1.00         5
+   drumstick       1.00      1.00      1.00         1
+      garlic       1.00      1.00      1.00        80
+      grapes       1.00      1.00      1.00         7
+   horsegram       1.00      1.00      1.00       101
+   jackfruit       1.00      1.00      1.00         2
+       jowar       0.00      0.00      0.00       200
+        jute       0.00      0.00      0.00        37
+  ladyfinger       1.00      1.00      1.00         7
+       maize       1.00      1.00      1.00       414
+       mango       1.00      1.00      1.00        11
+       moong       1.00      1.00      1.00       265
+       onion       1.00      1.00      1.00       202
+      orange       1.00      1.00      1.00         1
+      papaya       1.00      1.00      1.00        15
+   pineapple       1.00      1.00      1.00         6
+      potato       1.00      1.00      1.00       235
+     pumpkin       0.00      0.00      0.00         2
+      radish       1.00      1.00      1.00         4
+        ragi       1.00      1.00      1.00        99
+    rapeseed       1.00      1.00      1.00       235
+        rice       0.65      1.00      0.79       448
+    soyabean       1.00      1.00      1.00        78
+   sunflower       1.00      1.00      1.00       130
+ sweetpotato       1.00      1.00      1.00       121
+      tomato       1.00      1.00      1.00        10
+    turmeric       1.00      1.00      1.00       109
+       wheat       1.00      1.00      1.00       263
+
+    accuracy                           0.93      3616
+   macro avg       0.89      0.90      0.89      3616
+weighted avg       0.89      0.93      0.91      3616
