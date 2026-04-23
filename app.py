@@ -118,6 +118,7 @@ class_labels = ['Healthy', 'Powdery', 'Rust']
 # DATABASE (SQLite)
 # ==============================
 def init_db():
+    os.makedirs("database", exist_ok=True)
     conn = sqlite3.connect("database/crop_app.db")
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS users (
