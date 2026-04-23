@@ -1,18 +1,21 @@
 import os
+from dotenv import load_dotenv
+load_dotenv(override=True)
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' 
 import streamlit as st
 import numpy as np
 import json
 import sqlite3
+import requests
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
 from PIL import Image
 try:
-    from supabase_client import insert_prediction, fetch_recommendations, get_client as get_supabase_client, sign_up, sign_in
+    from firebase_client import insert_prediction, fetch_recommendations, get_client as get_firebase_client, sign_up, sign_in
 except Exception:
     insert_prediction = None
     fetch_recommendations = None
-    get_supabase_client = None
+    get_firebase_client = None
     sign_up = None
     sign_in = None
 
@@ -20,6 +23,51 @@ except Exception:
 # APP CONFIG
 # ==============================
 st.set_page_config(page_title="🌾 AI Crop Assistant", layout="wide")
+
+def apply_custom_theme():
+    st.markdown("""
+        <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        
+        html, body, [class*="css"]  {
+            font-family: 'Inter', sans-serif !important;
+        }
+        
+        /* Modern gradients for buttons */
+        .stButton > button {
+            background: linear-gradient(135deg, #00e676, #1de9b6);
+            color: #121212 !important;
+            border-radius: 8px;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        .stButton > button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 230, 118, 0.4);
+            color: #000 !important;
+            border: none;
+        }
+        
+        /* Hide default header and footer for clean app feel */
+        header {visibility: hidden;}
+        footer {visibility: hidden;}
+        
+        /* Glassmorphism for sidebar */
+        [data-testid="stSidebar"] {
+            background-color: rgba(28, 31, 38, 0.7) !important;
+            backdrop-filter: blur(10px);
+        }
+        
+        /* Input styling */
+        .stTextInput > div > div > input, .stNumberInput > div > div > input {
+            border-radius: 8px;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+apply_custom_theme()
 
 MODEL_DISEASE_PATH = "models/disease_model_gpu.h5"
 MODEL_CROP_PATH = "models/crop_model.pkl"
@@ -70,7 +118,7 @@ class_labels = ['Healthy', 'Powdery', 'Rust']
 # DATABASE (SQLite)
 # ==============================
 def init_db():
-    conn = sqlite3.connect("crop_app.db")
+    conn = sqlite3.connect("database/crop_app.db")
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS users (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -82,7 +130,7 @@ def init_db():
     conn.close()
 
 def get_user(email, password):
-    conn = sqlite3.connect("crop_app.db")
+    conn = sqlite3.connect("database/crop_app.db")
     c = conn.cursor()
     c.execute("SELECT * FROM users WHERE email=? AND password=?", (email, password))
     user = c.fetchone()
@@ -91,7 +139,7 @@ def get_user(email, password):
 
 def register_user(name, email, password):
     try:
-        conn = sqlite3.connect("crop_app.db")
+        conn = sqlite3.connect("database/crop_app.db")
         c = conn.cursor()
         c.execute("INSERT INTO users (name, email, password) VALUES (?, ?, ?)", (name, email, password))
         conn.commit()
@@ -135,8 +183,8 @@ def login_page():
                 if not email or not password:
                     st.warning("Please enter both email and password.")
                 else:
-                    # If Supabase client is configured, try Supabase Auth first
-                    if get_supabase_client is not None and sign_in is not None and get_supabase_client():
+                    # If Firebase client is configured, try Firebase Auth first
+                    if get_firebase_client is not None and sign_in is not None and get_firebase_client():
                         try:
                             resp = sign_in(email, password)
                             success = False
@@ -208,10 +256,10 @@ def register_page():
                 elif len(password) < 6:
                     st.warning("Password should be at least 6 characters long.")
                 else:
-                    # If Supabase is available, create user there
-                    if get_supabase_client is not None and sign_up is not None and get_supabase_client():
+                    # If Firebase is available, create user there
+                    if get_firebase_client is not None and sign_up is not None and get_firebase_client():
                         try:
-                            resp = sign_up(email, password, {"name": name})
+                            resp = sign_up(email, password, user_metadata={"name": name})
                             created = False
                             if resp is None:
                                 created = False
@@ -382,23 +430,101 @@ def disease_detection_page():
                 elif label == "Rust":
                     st.warning("⚠️ Rust detected. See recommendations above.")
 
-                # Attempt to save prediction to Supabase (if configured)
+                # Attempt to save prediction to Firebase
                 try:
-                    if insert_prediction is not None:
-                        payload = {
-                            "user_email": st.session_state.user['email'] if st.session_state.user else None,
-                            "type": "disease",
-                            "label": label,
-                            "confidence": float(confidence),
-                            "image_path": temp_path
-                        }
-                        insert_prediction(payload)
-                        st.info("Saved prediction to Supabase.")
+                    if insert_prediction is not None and get_firebase_client is not None and get_firebase_client():
+                        with st.spinner("☁️ Syncing scan to Firebase..."):
+                            payload = {
+                                "user_email": st.session_state.user['email'] if st.session_state.user else "Anonymous",
+                                "type": "disease",
+                                "label": label,
+                                "confidence": float(confidence),
+                                "image_path": temp_path
+                            }
+                            insert_prediction(payload)
+                        st.success("☁️ **Success:** Scan securely backed up to your Firebase Cloud!")
+                    else:
+                        st.info("ℹ️ Note: Firebase connection not detected. Scan saved locally only.")
                 except Exception as e:
-                    st.warning(f"Could not save to Supabase: {e}")
+                    st.error(f"❌ **Firebase Error:** Backup failed. Details: {str(e)}")
 
             except Exception as e:
                 st.error(f"Prediction failed: {e}")
+
+IDEAL_NPK = {
+    'rice': {'N': 90, 'P': 40, 'K': 40},
+    'maize': {'N': 100, 'P': 40, 'K': 30},
+    'jute': {'N': 60, 'P': 30, 'K': 30},
+    'cotton': {'N': 100, 'P': 40, 'K': 40},
+    'coconut': {'N': 50, 'P': 20, 'K': 50},
+    'papaya': {'N': 50, 'P': 50, 'K': 50},
+    'orange': {'N': 50, 'P': 20, 'K': 20},
+    'apple': {'N': 50, 'P': 20, 'K': 50},
+    'muskmelon': {'N': 80, 'P': 40, 'K': 40},
+    'watermelon': {'N': 80, 'P': 40, 'K': 40},
+    'grapes': {'N': 40, 'P': 40, 'K': 80},
+    'mango': {'N': 50, 'P': 20, 'K': 40},
+    'banana': {'N': 100, 'P': 40, 'K': 100},
+    'pomegranate': {'N': 50, 'P': 20, 'K': 40},
+    'lentil': {'N': 20, 'P': 40, 'K': 20},
+    'blackgram': {'N': 20, 'P': 40, 'K': 20},
+    'mungbean': {'N': 20, 'P': 40, 'K': 20},
+    'mothbeans': {'N': 20, 'P': 40, 'K': 20},
+    'pigeonpeas': {'N': 20, 'P': 40, 'K': 20},
+    'kidneybeans': {'N': 20, 'P': 40, 'K': 20},
+    'chickpea': {'N': 20, 'P': 40, 'K': 20},
+    'coffee': {'N': 80, 'P': 30, 'K': 60}
+}
+
+def get_fertilizer_recommendation(crop_name, user_n, user_p, user_k):
+    crop = crop_name.lower()
+    ideal = IDEAL_NPK.get(crop, {'N': 50, 'P': 50, 'K': 50})
+    recs = []
+    
+    if user_n < ideal['N'] - 10:
+        recs.append("🌱 **Nitrogen** is low. Add a Nitrogen-rich fertilizer (e.g., Urea, Blood Meal).")
+    elif user_n > ideal['N'] + 15:
+        recs.append("⚠️ **Nitrogen** is too high! Avoid adding more N-fertilizers as it may stunt fruiting.")
+        
+    if user_p < ideal['P'] - 10:
+        recs.append("🌱 **Phosphorus** is low. Add Phosphorus-rich fertilizer (e.g., Superphosphate, Bone Meal).")
+    elif user_p > ideal['P'] + 15:
+        recs.append("⚠️ **Phosphorus** is high. Avoid P-fertilizers to prevent zinc/iron deficiency.")
+        
+    if user_k < ideal['K'] - 10:
+        recs.append("🌱 **Potassium** is low. Add Potassium-rich fertilizer (e.g., Muriate of Potash, Kelp Meal).")
+    elif user_k > ideal['K'] + 15:
+        recs.append("⚠️ **Potassium** is high. Avoid K-fertilizers to prevent nutrient lock-out.")
+        
+    if not recs:
+        recs.append("✅ Soil NPK levels are in the optimal range for this crop! Maintain regular composting.")
+        
+    return recs
+
+def fetch_weather(city_name):
+    # OpenWeatherMap API
+    api_key = os.getenv("OPENWEATHER_API_KEY")
+    if not api_key:
+        return None, None, None
+        
+    weather_url = f"http://api.openweathermap.org/data/2.5/forecast?q={city_name}&appid={api_key}&units=metric"
+    try:
+        res = requests.get(weather_url).json()
+        if 'list' in res and len(res['list']) > 0:
+            temp = res['list'][0]['main']['temp']
+            humidity = res['list'][0]['main']['humidity']
+            
+            # Sum up next 5 days of precipitation (OpenWeatherMap uses 'rain' -> '3h')
+            # The 'list' has 40 items for 5 days exactly (every 3 hours)
+            precip = 0
+            for item in res['list']:
+                if 'rain' in item and '3h' in item['rain']:
+                    precip += item['rain']['3h']
+            
+            return temp, humidity, precip
+    except Exception as e:
+        return None, None, None
+    return None, None, None
 
 # ==============================
 # CROP RECOMMENDATION PAGE
@@ -431,9 +557,31 @@ def crop_recommendation_page():
     
     with col2:
         st.subheader("Environmental Conditions")
-        temperature = st.number_input("Temperature", 0.0, 50.0, 25.0, help="°C")
-        humidity = st.number_input("Humidity", 0.0, 100.0, 60.0, help="%")
-        rainfall = st.number_input("Rainfall", 0.0, 500.0, 100.0, help="mm")
+        city = st.text_input("📍 Auto-Fetch Weather by City", placeholder="e.g. Mumbai, Tokyo")
+        
+        # Initialize default session states for weather
+        if 'temp_val' not in st.session_state:
+            st.session_state.temp_val = 25.0
+        if 'hum_val' not in st.session_state:
+            st.session_state.hum_val = 60.0
+        if 'rain_val' not in st.session_state:
+            st.session_state.rain_val = 100.0
+            
+        if st.button("Fetch Climate Data", use_container_width=True):
+            if city:
+                with st.spinner(f"Getting data for {city}..."):
+                    t, h, r = fetch_weather(city)
+                    if t is not None:
+                        st.session_state.temp_val = float(t)
+                        st.session_state.hum_val = float(h)
+                        st.session_state.rain_val = float(r)
+                        st.success(f"Loaded weather for {city}!")
+                    else:
+                        st.error("Could not fetch data. Please try another city or enter manually.")
+        
+        temperature = st.number_input("Temperature", 0.0, 50.0, key="temp_val", help="°C")
+        humidity = st.number_input("Humidity", 0.0, 100.0, key="hum_val", help="%")
+        rainfall = st.number_input("Rainfall (7 Days)", 0.0, 500.0, key="rain_val", help="mm")
 
     # Slider and analysis button (slider outside button to avoid losing results on change)
     k = st.slider('Number of recommendations', min_value=1, max_value=5, value=3)
@@ -507,9 +655,15 @@ def crop_recommendation_page():
 
         for crop_name, prob in last_recs[:k]:
             tips = crop_tips.get(crop_name.lower(), crop_tips.get('default', []))
-            st.markdown(f"**{crop_name}**")
+            st.markdown(f"### 🌾 **{crop_name.capitalize()}**")
             for t in tips:
                 st.write(f"• {t}")
+                
+            # Embed Fertilizer logic dynamically based on current user inputs
+            fert_recs = get_fertilizer_recommendation(crop_name, current_input[0], current_input[1], current_input[2])
+            with st.expander(f"🌿 Fertilizer Plan for {crop_name.capitalize()}"):
+                for rec in fert_recs:
+                    st.write(rec)
 
        
 # ==============================

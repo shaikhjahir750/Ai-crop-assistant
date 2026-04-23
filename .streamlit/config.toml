@@ -1,0 +1,15 @@
+[theme]
+# Vibrant neon green accent
+primaryColor = "#00e676"
+
+# Deep sleek dark background
+backgroundColor = "#0e1117"
+
+# Lighter dark for sidebar and secondary containers 
+secondaryBackgroundColor = "#1c1f26"
+
+# High contrast text color
+textColor = "#e0e6ed"
+
+# Clean sans serif font style
+font = "sans serif"

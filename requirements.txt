@@ -4,5 +4,6 @@ Pillow
 tensorflow
 scikit-learn
 joblib
-supabase
+Pyrebase4
 python-dotenv
+requests
