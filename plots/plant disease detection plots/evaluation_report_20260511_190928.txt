@@ -1,0 +1,23 @@
+Model Evaluation Report (20260511_190928)
+=========================================
+
+                      precision    recall  f1-score   support
+
+          Apple Scab       1.00      1.00      1.00       504
+      Bacterial Spot       0.99      0.99      0.99      1371
+           Black Rot       1.00      1.00      1.00       978
+    Cedar Apple Rust       1.00      1.00      1.00       440
+         Common Rust       1.00      1.00      1.00       477
+        Early Blight       0.98      0.99      0.98       954
+                Esca       1.00      1.00      1.00       482
+      Gray Leaf Spot       0.98      0.96      0.97       412
+             Healthy       1.00      0.99      0.99      4155
+         Late Blight       0.97      0.99      0.98       921
+         Leaf Blight       1.00      1.00      1.00       432
+         Leaf Scorch       1.00      1.00      1.00       444
+Northern Leaf Blight       0.97      0.98      0.97       485
+      Powdery Mildew       1.00      1.00      1.00       422
+
+            accuracy                           0.99     12477
+           macro avg       0.99      0.99      0.99     12477
+        weighted avg       0.99      0.99      0.99     12477

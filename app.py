@@ -7,11 +7,13 @@ import numpy as np
 import json
 import sqlite3
 import requests
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing import image
+import torch
+import torch.nn as nn
+from torchvision import models, transforms
 from PIL import Image
+
 try:
-    from firebase_client import insert_prediction, fetch_recommendations, get_client as get_firebase_client, sign_up, sign_in
+    from database.firebase_client import insert_prediction, fetch_recommendations, get_client as get_firebase_client, sign_up, sign_in
 except Exception:
     insert_prediction = None
     fetch_recommendations = None
@@ -69,10 +71,13 @@ def apply_custom_theme():
 
 apply_custom_theme()
 
-MODEL_DISEASE_PATH = "models/disease_model_gpu.h5"
+MODEL_DISEASE_PATH = "models/plant_village_model_20260511_204122.pth"
 MODEL_CROP_PATH = "models/crop_model.pkl"
+INDICES_PATH = "models/class_indices_20260511_204122.json"
 UPLOAD_FOLDER = "static/uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # ==============================
 # LOAD MODELS
@@ -100,19 +105,46 @@ def load_disease_model():
     try:
         if not os.path.exists(MODEL_DISEASE_PATH):
             st.sidebar.error(f"❌ Disease model file not found at {MODEL_DISEASE_PATH}")
-            return None
-        model = load_model(MODEL_DISEASE_PATH)
+            return None, None
+        if not os.path.exists(INDICES_PATH):
+            st.sidebar.error(f"❌ Disease class indices file not found at {INDICES_PATH}")
+            return None, None
+            
+        with open(INDICES_PATH, "r") as f:
+            class_to_idx = json.load(f)
+        idx_to_class = {v: k for k, v in class_to_idx.items()}
+        num_classes = len(idx_to_class)
+
+        weights = models.EfficientNet_B3_Weights.DEFAULT
+        model = models.efficientnet_b3(weights=weights)
+        in_features = model.classifier[1].in_features
+        
+        # Must match the architecture from train_plant_village_model.py
+        model.classifier = nn.Sequential(
+            nn.BatchNorm1d(in_features),
+            nn.Dropout(p=0.5),
+            nn.Linear(in_features, 512),
+            nn.ReLU(inplace=True),
+            nn.BatchNorm1d(512),
+            nn.Dropout(p=0.4),
+            nn.Linear(512, num_classes)
+        )
+        
+        # We need weights_only=False because of the BatchNorm layers or depending on how it was saved, but True is usually fine for state_dicts.
+        # Actually torch.load with state_dict is fine with weights_only=True usually, but let's just do it securely.
+        model.load_state_dict(torch.load(MODEL_DISEASE_PATH, map_location=device))
+        model = model.to(device)
+        model.eval()
+        
         st.sidebar.success("✅ Disease model loaded successfully!")
-        return model
+        return model, idx_to_class
     except Exception as e:
         st.sidebar.error(f"❌ Error loading disease model: {e}")
-        return None
+        return None, None
 
 # Load models at startup
-disease_model = load_disease_model()
+disease_model, idx_to_class = load_disease_model()
 crop_model = load_crop_model()
-class_labels = ['Healthy', 'Powdery', 'Rust']
-class_labels = ['Healthy', 'Powdery', 'Rust']
 
 # ==============================
 # DATABASE (SQLite)
@@ -352,14 +384,21 @@ def disease_detection_page():
         if analyze_button:
             try:
                 with st.spinner('Analyzing image...'):
-                    img = image.load_img(temp_path, target_size=(128, 128))
-                    img_array = image.img_to_array(img) / 255.0
-                    img_array = np.expand_dims(img_array, axis=0)
+                    # PyTorch Image Preprocessing
+                    img = Image.open(temp_path).convert('RGB')
+                    transform = transforms.Compose([
+                        transforms.Resize((224, 224)),
+                        transforms.ToTensor(),
+                        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+                    ])
+                    img_tensor = transform(img).unsqueeze(0).to(device)
 
-                    predictions = disease_model.predict(img_array)
-                    probs = predictions[0]
+                    with torch.no_grad():
+                        outputs = disease_model(img_tensor)
+                        probs = torch.nn.functional.softmax(outputs, dim=1)[0].cpu().numpy()
+
                     top_idx = int(np.argmax(probs))
-                    label = class_labels[top_idx]
+                    label = idx_to_class[top_idx]
                     confidence = float(probs[top_idx])
 
                     # Display results clearly
@@ -367,12 +406,14 @@ def disease_detection_page():
                     st.info(f"**Detected Condition**: {label}")
                     st.write(f"Confidence: {confidence * 100:.1f}%")
 
-                    # Show per-class percentages in columns
-                    st.subheader("Model Output (percentages)")
-                    cols = st.columns(len(class_labels))
-                    for i, cls in enumerate(class_labels):
+                    # Show per-class percentages (top 3 to avoid layout breaking with 14 classes)
+                    st.subheader("Top 3 Predictions")
+                    top_3_indices = np.argsort(probs)[-3:][::-1]
+                    cols = st.columns(3)
+                    for i, idx in enumerate(top_3_indices):
+                        cls = idx_to_class[idx]
+                        pct = float(probs[idx]) * 100
                         with cols[i]:
-                            pct = float(probs[i]) * 100
                             st.metric(label=cls, value=f"{pct:.1f}%")
 
                     # Recommendations mapping — load from JSON file for easier editing

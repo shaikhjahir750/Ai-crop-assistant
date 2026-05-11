@@ -1,0 +1,46 @@
+Model Classification Report
+===========================
+
+                               precision    recall  f1-score   support
+
+              Apple Black rot       0.50      0.50      0.50         2
+                Apple Healthy       0.33      0.18      0.24        11
+                   Apple Scab       0.44      0.31      0.36        13
+   Bell pepper Bacterial spot       0.50      0.18      0.27        11
+          Bell pepper Healthy       0.25      0.20      0.22        10
+             Cedar apple rust       0.48      0.71      0.57        14
+               Cherry Healthy       0.33      0.17      0.22        12
+        Cherry Powdery mildew       0.00      0.00      0.00         2
+            Citrus Black spot       0.48      1.00      0.65        27
+               Citrus Healthy       0.83      0.79      0.81        19
+                Citrus canker       1.00      0.55      0.71        29
+              Citrus greening       0.75      0.45      0.56        20
+             Corn Common rust       0.50      0.92      0.65        13
+          Corn Gray leaf spot       0.38      0.50      0.43         6
+                 Corn Healthy       1.00      0.50      0.67         2
+    Corn Northern Leaf Blight       0.57      0.29      0.38        14
+          Grape Black Measles       0.00      0.00      0.00         3
+              Grape Black rot       0.50      0.27      0.35        11
+                Grape Healthy       0.69      0.56      0.62        16
+   Grape Isariopsis Leaf Spot       1.00      0.33      0.50         3
+         Peach Bacterial spot       0.00      0.00      0.00         2
+                Peach Healthy       0.17      0.09      0.12        11
+          Potato Early blight       0.54      0.54      0.54        13
+               Potato Healthy       0.67      1.00      0.80         2
+           Potato Late blight       0.22      0.20      0.21        10
+           Strawberry Healthy       0.43      0.90      0.58        10
+       Strawberry Leaf scorch       0.12      0.50      0.20         2
+        Tomato Bacterial spot       0.14      0.18      0.16        11
+          Tomato Early blight       0.32      0.67      0.43        15
+               Tomato Healthy       0.80      0.31      0.44        13
+           Tomato Late blight       0.22      0.58      0.32        12
+             Tomato Leaf Mold       0.50      0.12      0.20         8
+          Tomato Mosaic virus       0.25      0.08      0.12        12
+    Tomato Septoria leaf spot       0.67      0.31      0.42        13
+          Tomato Spider mites       0.00      0.00      0.00         2
+           Tomato Target Spot       0.00      0.00      0.00         2
+Tomato Yellow Leaf Curl Virus       0.73      0.67      0.70        12
+
+                     accuracy                           0.47       388
+                    macro avg       0.44      0.39      0.38       388
+                 weighted avg       0.52      0.47      0.45       388

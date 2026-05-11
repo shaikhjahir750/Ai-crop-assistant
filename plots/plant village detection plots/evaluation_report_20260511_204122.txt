@@ -1,0 +1,39 @@
+Model Evaluation Report (20260511_204122)
+=========================================
+
+                                     precision    recall  f1-score   support
+
+                 .ipynb_checkpoints       0.17      1.00      0.29         1
+                 Apple - Apple Scab       1.00      1.00      1.00       494
+                  Apple - Black Rot       1.00      1.00      1.00       488
+           Apple - Cedar Apple Rust       1.00      1.00      1.00       429
+                    Apple - Healthy       1.00      1.00      1.00       495
+       Bell Pepper - Bacterial Spot       0.99      1.00      0.99       484
+              Bell Pepper - Healthy       1.00      0.99      0.99       497
+                   Cherry - Healthy       1.00      0.99      1.00       427
+            Cherry - Powdery Mildew       1.00      0.99      1.00       413
+Corn (Maize) - Cercospora Leaf Spot       0.94      0.95      0.95       403
+         Corn (Maize) - Common Rust       1.00      1.00      1.00       468
+             Corn (Maize) - Healthy       1.00      1.00      1.00       456
+Corn (Maize) - Northern Leaf Blight       0.96      0.95      0.95       474
+                  Grape - Black Rot       0.99      1.00      1.00       463
+       Grape - Esca (Black Measles)       1.00      0.99      1.00       469
+                    Grape - Healthy       1.00      1.00      1.00       418
+                Grape - Leaf Blight       1.00      1.00      1.00       422
+             Peach - Bacterial Spot       1.00      1.00      1.00       451
+                    Peach - Healthy       0.99      1.00      1.00       425
+              Potato - Early Blight       1.00      1.00      1.00       474
+                   Potato - Healthy       0.99      1.00      1.00       453
+               Potato - Late Blight       1.00      1.00      1.00       481
+               Strawberry - Healthy       1.00      1.00      1.00       451
+           Strawberry - Leaf Scorch       1.00      1.00      1.00       440
+            Tomato - Bacterial Spot       0.97      1.00      0.98       417
+              Tomato - Early Blight       0.99      0.95      0.97       496
+                   Tomato - Healthy       0.98      1.00      0.99       456
+               Tomato - Late Blight       0.99      0.99      0.99       449
+        Tomato - Septoria Leaf Spot       0.97      0.99      0.98       417
+    Tomato - Yellow Leaf Curl Virus       1.00      0.99      0.99       481
+
+                           accuracy                           0.99     13192
+                          macro avg       0.96      0.99      0.97     13192
+                       weighted avg       0.99      0.99      0.99     13192

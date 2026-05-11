@@ -1,0 +1,28 @@
+Model Evaluation Report (20260510_192925)
+=========================================
+
+                        precision    recall  f1-score   support
+
+        Bacterial Spot       0.67      0.25      0.36        24
+             Black Rot       0.67      0.46      0.55        13
+            Black Spot       0.46      0.96      0.63        27
+                Canker       0.46      0.86      0.60        29
+      Cedar Apple Rust       0.50      0.57      0.53        14
+           Common Rust       1.00      0.38      0.56        13
+          Early Blight       0.56      0.54      0.55        28
+        Gray Leaf Spot       0.38      0.50      0.43         6
+              Greening       1.00      0.30      0.46        20
+               Healthy       0.91      0.58      0.71       106
+  Isariopsis Leaf Spot       0.50      0.33      0.40         3
+           Late Blight       0.57      0.77      0.65        22
+             Leaf Mold       0.00      0.00      0.00         8
+           Leaf Scorch       0.40      1.00      0.57         2
+          Mosaic Virus       0.33      0.42      0.37        12
+  Northern Leaf Blight       0.42      0.79      0.55        14
+                  Scab       0.50      0.46      0.48        13
+    Septoria Leaf Spot       0.38      0.62      0.47        13
+Yellow Leaf Curl Virus       0.78      0.58      0.67        12
+
+              accuracy                           0.58       379
+             macro avg       0.55      0.55      0.50       379
+          weighted avg       0.66      0.58      0.57       379
