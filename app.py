@@ -21,6 +21,23 @@ except Exception:
     sign_up = None
     sign_in = None
 
+import google.generativeai as genai
+from datetime import datetime, timedelta
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def get_gemini_response(prompt):
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        return None
+    try:
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel('gemini-2.5-flash')
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        print(f"Gemini API Error: {e}")
+        return None
+
 # ==============================
 # APP CONFIG
 # ==============================
@@ -406,60 +423,32 @@ def disease_detection_page():
                     st.info(f"**Detected Condition**: {label}")
                     st.write(f"Confidence: {confidence * 100:.1f}%")
 
-                    # Show per-class percentages (top 3 to avoid layout breaking with 14 classes)
-                    st.subheader("Top 3 Predictions")
-                    top_3_indices = np.argsort(probs)[-3:][::-1]
-                    cols = st.columns(3)
-                    for i, idx in enumerate(top_3_indices):
-                        cls = idx_to_class[idx]
-                        pct = float(probs[idx]) * 100
-                        with cols[i]:
-                            st.metric(label=cls, value=f"{pct:.1f}%")
-
-                    # Recommendations mapping — load from JSON file for easier editing
                     st.subheader("Recommendations")
-                    tips_file = os.path.join("data", "disease_tips.json")
-                    try:
-                        if os.path.exists(tips_file):
-                            with open(tips_file, 'r', encoding='utf-8') as dtf:
-                                recommendations = json.load(dtf)
+                    if label == "Healthy":
+                        st.success("✅ Your crop looks healthy! No immediate treatment required.")
+                        st.write("Continue regular monitoring and good cultural practices.")
+                    elif confidence >= 0.15:
+                        if confidence >= 0.25:
+                            st.warning(f"⚠️ {label} detected with high confidence ({confidence*100:.1f}%).")
                         else:
-                            recommendations = {
-                                'Healthy': [
-                                    "No treatment required.",
-                                    "Continue regular monitoring and good cultural practices."
-                                ],
-                                'Powdery': [
-                                    "Apply sulfur-based fungicides or potassium bicarbonate sprays.",
-                                    "Use neem oil or horticultural oils as organic options.",
-                                    "Improve air circulation and reduce leaf wetness; avoid overhead irrigation.",
-                                    "Remove severely affected leaves and dispose of them safely."
-                                ],
-                                'Rust': [
-                                    "Use copper-based fungicides or other recommended protectants.",
-                                    "Consider systemic fungicides for severe infections per local guidance.",
-                                    "Remove and destroy infected material and improve airflow."
-                                ]
-                            }
-                    except Exception as e:
-                        st.error(f"Failed to load disease tips: {e}")
-                        recommendations = {
-                            'Healthy': ["No treatment required.", "Monitor regularly."],
-                            'Powdery': ["Consider cultural controls and consult extension services."],
-                            'Rust': ["Consult extension services for management options."]
-                        }
-
-                    # Provide tailored recommendation based on confidence
-                    if confidence >= 0.6 and label in recommendations:
-                        st.warning(f"⚠️ {label} detected with high confidence ({confidence*100:.1f}%).")
-                        for rec in recommendations[label]:
-                            st.write(f"• {rec}")
-                        st.info("Consult local agricultural extension services for pesticides, dosages and timings.")
-                    elif confidence >= 0.3 and label in recommendations:
-                        st.warning(f"⚠️ Possible {label} detected ({confidence*100:.1f}%). Consider retesting or manual inspection.")
-                        for rec in recommendations[label][:2]:
-                            st.write(f"• {rec}")
-                        st.info("If unsure, collect additional images from different leaves/angles.")
+                            st.warning(f"⚠️ Possible {label} detected ({confidence*100:.1f}%). Consider retesting or manual inspection.")
+                            
+                        with st.spinner('Generating AI treatment recommendations...'):
+                            prompt = f"A plant is affected by the disease '{label}'. Provide a brief 3-point list of actionable recommendations or organic treatments to manage this plant disease. Keep the response short, concise, and in markdown format."
+                            gemini_tips = get_gemini_response(prompt)
+                            
+                        if gemini_tips:
+                            st.markdown("✨ **AI Treatment Plan (Powered by Gemini)**")
+                            st.markdown(gemini_tips)
+                        else:
+                            # Fallback
+                            st.write("• Consider cultural controls and consult extension services.")
+                            st.write("• Remove and destroy infected material and improve airflow.")
+                            
+                        if confidence >= 0.6:
+                            st.info("Consult local agricultural extension services for pesticides, dosages and timings.")
+                        else:
+                            st.info("If unsure, collect additional images from different leaves/angles.")
                     else:
                         st.success("Detection confidence is low; no treatment recommended automatically.")
                         st.write("Consider taking clearer images or consulting an expert if symptoms are visible.")
@@ -544,29 +533,42 @@ def get_fertilizer_recommendation(crop_name, user_n, user_p, user_k):
     return recs
 
 def fetch_weather(city_name):
-    # OpenWeatherMap API
-    api_key = os.getenv("OPENWEATHER_API_KEY")
-    if not api_key:
-        return None, None, None
-        
-    weather_url = f"http://api.openweathermap.org/data/2.5/forecast?q={city_name}&appid={api_key}&units=metric"
     try:
-        res = requests.get(weather_url).json()
-        if 'list' in res and len(res['list']) > 0:
-            temp = res['list'][0]['main']['temp']
-            humidity = res['list'][0]['main']['humidity']
+        # 1. Geocode the city using Open-Meteo
+        geo_url = f"https://geocoding-api.open-meteo.com/v1/search?name={city_name}&count=1&format=json"
+        geo_res = requests.get(geo_url).json()
+        if 'results' not in geo_res or len(geo_res['results']) == 0:
+            return None, None, None
+        
+        lat = geo_res['results'][0]['latitude']
+        lon = geo_res['results'][0]['longitude']
+        
+        # 2. Get past 40 days date range
+        end_date = datetime.now() - timedelta(days=1)
+        start_date = end_date - timedelta(days=40)
+        
+        start_str = start_date.strftime('%Y-%m-%d')
+        end_str = end_date.strftime('%Y-%m-%d')
+        
+        # 3. Fetch historical weather
+        hist_url = f"https://archive-api.open-meteo.com/v1/archive?latitude={lat}&longitude={lon}&start_date={start_str}&end_date={end_str}&daily=temperature_2m_mean,precipitation_sum,relative_humidity_2m_mean&timezone=auto"
+        res = requests.get(hist_url).json()
+        
+        if 'daily' in res:
+            daily = res['daily']
+            temps = [t for t in daily.get('temperature_2m_mean', []) if t is not None]
+            rains = [r for r in daily.get('precipitation_sum', []) if r is not None]
+            hums = [h for h in daily.get('relative_humidity_2m_mean', []) if h is not None]
             
-            # Sum up next 5 days of precipitation (OpenWeatherMap uses 'rain' -> '3h')
-            # The 'list' has 40 items for 5 days exactly (every 3 hours)
-            precip = 0
-            for item in res['list']:
-                if 'rain' in item and '3h' in item['rain']:
-                    precip += item['rain']['3h']
+            avg_temp = sum(temps) / len(temps) if temps else 0
+            avg_hum = sum(hums) / len(hums) if hums else 0
+            total_rain = sum(rains) if rains else 0
             
-            return temp, humidity, precip
+            return avg_temp, avg_hum, total_rain
+            
+        return None, None, None
     except Exception as e:
         return None, None, None
-    return None, None, None
 
 # ==============================
 # CROP RECOMMENDATION PAGE
@@ -625,8 +627,8 @@ def crop_recommendation_page():
         humidity = st.number_input("Humidity", 0.0, 100.0, key="hum_val", help="%")
         rainfall = st.number_input("Rainfall (7 Days)", 0.0, 500.0, key="rain_val", help="mm")
 
-    # Slider and analysis button (slider outside button to avoid losing results on change)
-    k = st.slider('Number of recommendations', min_value=1, max_value=5, value=3)
+    # Show only the top recommendation
+    k = 1
 
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
@@ -668,44 +670,32 @@ def crop_recommendation_page():
         if last_input != current_input:
             st.warning('Inputs have changed since the last recommendation — click Get Recommendation to update results.')
 
-        st.subheader("Recommended Crops")
+        st.subheader("Recommended Crop")
         for crop_name, prob in last_recs[:k]:
             st.success(f"{crop_name} — Confidence: {prob*100:.1f}%")
 
         st.subheader("Cultivation Tips")
-        tips_file = os.path.join("data", "crop_tips.json")
-        try:
-            if os.path.exists(tips_file):
-                with open(tips_file, 'r', encoding='utf-8') as tf:
-                    crop_tips = json.load(tf)
-            else:
-                crop_tips = {
-                    'default': [
-                        'Follow local variety and sowing-time recommendations.',
-                        'Base fertilizer applications on a soil test and maintain soil organic matter.',
-                        'Monitor regularly for pests and diseases and adopt IPM.'
-                    ]
-                }
-        except Exception as e:
-            st.error(f"Failed to load crop tips: {e}")
-            crop_tips = {
-                'default': [
-                    'Follow local variety and sowing-time recommendations.',
-                    'Base fertilizer applications on a soil test and maintain soil organic matter.'
-                ]
-            }
-
+        
         for crop_name, prob in last_recs[:k]:
-            tips = crop_tips.get(crop_name.lower(), crop_tips.get('default', []))
             st.markdown(f"### 🌾 **{crop_name.capitalize()}**")
-            for t in tips:
-                st.write(f"• {t}")
+            
+            with st.spinner(f'Generating AI cultivation guide for {crop_name}...'):
+                prompt = f"The user wants to grow '{crop_name}'. Their soil conditions are: Nitrogen: {current_input[0]} mg/kg, Phosphorus: {current_input[1]} mg/kg, Potassium: {current_input[2]} mg/kg, pH: {current_input[5]}. The temperature is {current_input[3]}°C with {current_input[4]}% humidity. Provide a short 3-point cultivation tip and a brief tailored fertilizer recommendation based on these specific soil metrics. Keep it concise in markdown."
+                gemini_tips = get_gemini_response(prompt)
                 
-            # Embed Fertilizer logic dynamically based on current user inputs
-            fert_recs = get_fertilizer_recommendation(crop_name, current_input[0], current_input[1], current_input[2])
-            with st.expander(f"🌿 Fertilizer Plan for {crop_name.capitalize()}"):
-                for rec in fert_recs:
-                    st.write(rec)
+            if gemini_tips:
+                st.markdown("✨ **AI Cultivation Guide (Powered by Gemini)**")
+                st.markdown(gemini_tips)
+            else:
+                st.write("• Follow local variety and sowing-time recommendations.")
+                st.write("• Base fertilizer applications on a soil test and maintain soil organic matter.")
+                st.write("• Monitor regularly for pests and diseases and adopt IPM.")
+                
+                # Embed Fallback Fertilizer logic dynamically based on current user inputs
+                fert_recs = get_fertilizer_recommendation(crop_name, current_input[0], current_input[1], current_input[2])
+                with st.expander(f"🌿 Fertilizer Plan for {crop_name.capitalize()}"):
+                    for rec in fert_recs:
+                        st.write(rec)
 
        
 # ==============================
