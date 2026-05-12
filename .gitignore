@@ -2,10 +2,21 @@
 *.pyc
 __pycache__/
 crop_app.db
-models/
+
+# Ignore all models by default to save space
+models/*
+# EXCEPT the models required for deployment in app.py
+!models/plant_village_model_20260511_204122.pth
+!models/crop_model.pkl
+!models/class_indices_20260511_204122.json
+
 static/uploads/
 .vscode/
 *.h5
 *.pkl
+
+# Ensure the specific pkl model is not ignored by the *.pkl rule above
+!models/crop_model.pkl
+
 .DS_Store
 .env.example
