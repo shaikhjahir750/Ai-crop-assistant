@@ -1,8 +1,8 @@
-# AI Crop Assistant 🌿
+# AI Crop Assistant 
 
 AI Crop Assistant is a precision agriculture web application designed to help farmers optimize their yield and maintain plant health. Powered by Machine Learning and Computer Vision, the platform offers data-driven insights tailored to local soil metrics and environmental conditions.
 
-## ✨ Features
+## Features
 
 1. **Disease Detection:** 
    - A Computer Vision model (CNN) analyzes leaf images to detect diseases across various plants (e.g., Apple Scab, Corn Northern Leaf Blight, Potato Early Blight, Tomato Target Spot).
@@ -16,7 +16,7 @@ AI Crop Assistant is a precision agriculture web application designed to help fa
    - Secure user signup/signin powered by Firebase (with an SQLite fallback).
    - Tracks past crop recommendations and disease predictions in a unified user dashboard.
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Frontend / Fullstack:** Streamlit (`app.py`) with Custom CSS (Glassmorphism, animations)
 - **Machine Learning:** 
@@ -25,7 +25,7 @@ AI Crop Assistant is a precision agriculture web application designed to help fa
 - **Database:** Firebase / SQLite
 - **APIs:** Open-Meteo (Geocoding and Climate data)
 
-## 📂 Directory Structure
+## Directory Structure
 
 ```text
 Ai-crop-assistant/
@@ -45,7 +45,7 @@ Ai-crop-assistant/
 └── static/                     # Static assets and temporary cache for uploads
 ```
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Python 3.8+
@@ -81,5 +81,5 @@ Ai-crop-assistant/
    streamlit run app.py
    ```
 
-## 🎨 UI/UX Note
+## UI/UX Note
 The application uses a highly customized Streamlit UI with a sleek dark mode. It injects custom CSS for gradient buttons, hover animations, and glassmorphic panels. Ensure you do not overwrite `.streamlit/config.toml` unless you intend to alter the base theme.

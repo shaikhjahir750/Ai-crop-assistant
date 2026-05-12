@@ -7,3 +7,5 @@ joblib
 Pyrebase4
 python-dotenv
 requests
+torch
+torchvision
