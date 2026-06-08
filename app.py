@@ -457,7 +457,7 @@ def disease_detection_page():
                             
                         with st.spinner(get_text("generating_ai_tips", lang)):
                             lang_name = "English" if lang == "en" else ("Hindi" if lang == "hi" else "Marathi")
-                            prompt = f"A plant is affected by the disease '{label}'. Provide a brief 3-point list of actionable recommendations or organic treatments to manage this plant disease. Keep the response short, concise, and in markdown format. Write the response in {lang_name}."
+                            prompt = f"A plant is affected by the disease '{label}'. Provide a brief 3-point list of actionable recommendations, treatments, or specific organic/chemical remedy names (e.g., names of specific fungicides/pesticides/bio-fertilizers) to manage this plant disease. Keep the response short, concise, and in markdown format. Write the response in {lang_name}."
                             gemini_tips = get_gemini_response(prompt)
                             
                         if gemini_tips:
@@ -541,48 +541,48 @@ def get_fertilizer_recommendation(crop_name, user_n, user_p, user_k):
     
     if user_n < ideal['N'] - 10:
         if lang == "hi":
-            recs.append("🌱 **नाइट्रोजन** कम है। नाइट्रोजन युक्त उर्वरक डालें (जैसे, यूरिया, ब्लड मील)।")
+            recs.append("🌱 **नाइट्रोजन** कम है। नाइट्रोजन युक्त उर्वरक डालें जैसे **यूरिया (46% N)**, **अमोनियम सल्फेट**, या **अमोनियम नाइट्रेट** (रासायनिक), या **ब्लड मील / कम्पोस्ट** (जैविक)।")
         elif lang == "mr":
-            recs.append("🌱 **नायट्रोजन** कमी आहे. नायट्रोजनयुक्त खत घाला (उदा., युरिया, ब्लड मील).")
+            recs.append("🌱 **नायट्रोजन** कमी आहे. नायट्रोजनयुक्त खत घाला जसे की **युरिया (46% N)**, **अमोनियम सल्फेट**, किंवा **अमोनियम नायट्रेट** (रासायनिक), किंवा **ब्लड मील / कंपोस्ट** (सेंद्रिय).")
         else:
-            recs.append("🌱 **Nitrogen** is low. Add a Nitrogen-rich fertilizer (e.g., Urea, Blood Meal).")
+            recs.append("🌱 **Nitrogen** is low. Add a Nitrogen-rich fertilizer such as **Urea (46% N)**, **Ammonium Sulfate**, or **Ammonium Nitrate** (chemical), or **Blood Meal / Compost** (organic).")
     elif user_n > ideal['N'] + 15:
         if lang == "hi":
-            recs.append("⚠️ **नाइट्रोजन** बहुत अधिक है! अधिक एन-उर्वरक डालने से बचें क्योंकि यह फलने को रोक सकता है।")
+            recs.append("⚠️ **नाइट्रोजन** बहुत अधिक है! अधिक एन-उर्वरक (जैसे यूरिया) डालने से बचें क्योंकि यह फलने को रोक सकता है।")
         elif lang == "mr":
-            recs.append("⚠️ **नायट्रोजन** जास्त आहे! जास्त एन-खते घालणे टाळा कारण यामुळे फळ येणे थांबू शकते.")
+            recs.append("⚠️ **नायट्रोजन** जास्त आहे! जास्त एन-खते (जसे की युरिया) घालणे टाळा कारण यामुळे फळ यायला अडथळा येऊ शकतो.")
         else:
-            recs.append("⚠️ **Nitrogen** is too high! Avoid adding more N-fertilizers as it may stunt fruiting.")
+            recs.append("⚠️ **Nitrogen** is too high! Avoid adding more N-fertilizers (like Urea) as it may stunt fruiting.")
         
     if user_p < ideal['P'] - 10:
         if lang == "hi":
-            recs.append("🌱 **फास्फोरस** कम है। फास्फोरस युक्त उर्वरक डालें (जैसे, सुपरफॉस्फेट, बोन मील)।")
+            recs.append("🌱 **फास्फोरस** कम है। फास्फोरस युक्त उर्वरक डालें जैसे **सिंगल सुपरफॉस्फेट (SSP)**, **डाई-अमोनियम फॉस्फेट (DAP)** (रासायनिक), या **बोन मील** (जैविक)।")
         elif lang == "mr":
-            recs.append("🌱 **फॉस्फरस** कमी आहे. फॉस्फरसयुक्त खत घाला (उदा., सुपरफॉस्फेट, बोन मील).")
+            recs.append("🌱 **फॉस्फरस** कमी आहे. फॉस्फरसयुक्त खत घाला जसे की **सिंगल सुपरफॉस्फेट (SSP)**, **डाय-अमोनियम फॉस्फेट (DAP)** (रासायनिक), किंवा **बोन मील** (सेंद्रिय).")
         else:
-            recs.append("🌱 **Phosphorus** is low. Add Phosphorus-rich fertilizer (e.g., Superphosphate, Bone Meal).")
+            recs.append("🌱 **Phosphorus** is low. Add Phosphorus-rich fertilizer such as **Single Superphosphate (SSP)**, **Di-ammonium Phosphate (DAP)** (chemical), or **Bone Meal** (organic).")
     elif user_p > ideal['P'] + 15:
         if lang == "hi":
-            recs.append("⚠️ **फास्फोरस** अधिक है। जस्ता/लोहे की कमी को रोकने के लिए पी-उर्वरक डालने से बचें।")
+            recs.append("⚠️ **फास्फोरस** अधिक है। जस्ता/लोहे की कमी को रोकने के लिए पी-उर्वरक (जैसे डीएपी या एसएसपी) डालने से बचें।")
         elif lang == "mr":
-            recs.append("⚠️ **फॉस्फरस** जास्त आहे. जस्त/लोहाची कमतरता रोखण्यासाठी पी-खते घालणे टाळा.")
+            recs.append("⚠️ **फॉस्फरस** जास्त आहे. जस्त/लोहाची कमतरता रोखण्यासाठी पी-खते (जसे की डीएपी किंवा एसएसपी) घालणे टाळा.")
         else:
-            recs.append("⚠️ **Phosphorus** is high. Avoid P-fertilizers to prevent zinc/iron deficiency.")
+            recs.append("⚠️ **Phosphorus** is high. Avoid P-fertilizers (like DAP or SSP) to prevent zinc/iron deficiency.")
         
     if user_k < ideal['K'] - 10:
         if lang == "hi":
-            recs.append("🌱 **पोटेशियम** कम है। पोटेशियम युक्त उर्वरक डालें (जैसे, म्यूरिएट ऑफ पोटाश, केल्प मील)।")
+            recs.append("🌱 **पोटेशियम** कम है। पोटेशियम युक्त उर्वरक डालें जैसे **म्यूरिएट ऑफ पोटाश (MOP)**, **पोटेशियम सल्फेट (SOP)** (रासायनिक), या **केल्प मील / लकड़ी की राख** (जैविक)।")
         elif lang == "mr":
-            recs.append("🌱 **पोटॅशियम** कमी आहे. पोटॅशियमयुक्त खत घाला (उदा., म्युरिएट ऑफ पोटॅश, केल्प मील).")
+            recs.append("🌱 **पोटॅशियम** कमी आहे. पोटॅशियमयुक्त खत घाला जसे की **म्युरिएट ऑफ पोटॅश (MOP)**, **पोटॅशियम सल्फेट (SOP)** (रासायनिक), किंवा **केल्प मील / लाकडाची राख** (सेंद्रिय).")
         else:
-            recs.append("🌱 **Potassium** is low. Add Potassium-rich fertilizer (e.g., Muriate of Potash, Kelp Meal).")
+            recs.append("🌱 **Potassium** is low. Add Potassium-rich fertilizer such as **Muriate of Potash (MOP)**, **Potassium Sulfate (SOP)** (chemical), or **Kelp Meal / Wood Ash** (organic).")
     elif user_k > ideal['K'] + 15:
         if lang == "hi":
-            recs.append("⚠️ **पोटेशियम** अधिक है। पोषक तत्वों के जमाव को रोकने के लिए के-उर्वरक डालने से बचें।")
+            recs.append("⚠️ **पोटेशियम** अधिक है। पोषक तत्वों के जमाव को रोकने के लिए के-उर्वरक (जैसे एमओपी) डालने से बचें।")
         elif lang == "mr":
-            recs.append("⚠️ **पोटॅशियम** जास्त आहे. पोषक घटकांचे ब्लॉकेज रोखण्यासाठी के-खते घालणे टाळा.")
+            recs.append("⚠️ **पोटॅशियम** जास्त आहे. पोषक घटकांचे ब्लॉकेज रोखण्यासाठी के-खते (जसे की एमओपी) घालणे टाळा.")
         else:
-            recs.append("⚠️ **Potassium** is high. Avoid K-fertilizers to prevent nutrient lock-out.")
+            recs.append("⚠️ **Potassium** is high. Avoid K-fertilizers (like MOP) to prevent nutrient lock-out.")
         
     if not recs:
         if lang == "hi":
@@ -744,7 +744,7 @@ def crop_recommendation_page():
             
             with st.spinner(get_text("generating_ai_guide", lang, crop_name=crop_name)):
                 lang_name = "English" if lang == "en" else ("Hindi" if lang == "hi" else "Marathi")
-                prompt = f"The user wants to grow '{crop_name}'. Their soil conditions are: Nitrogen: {current_input[0]} mg/kg, Phosphorus: {current_input[1]} mg/kg, Potassium: {current_input[2]} mg/kg, pH: {current_input[5]}. The temperature is {current_input[3]}°C with {current_input[4]}% humidity. Provide a short 3-point cultivation tip and a brief tailored fertilizer recommendation based on these specific soil metrics. Keep it concise in markdown. Write the response in {lang_name}."
+                prompt = f"The user wants to grow '{crop_name}'. Their soil conditions are: Nitrogen: {current_input[0]} mg/kg, Phosphorus: {current_input[1]} mg/kg, Potassium: {current_input[2]} mg/kg, pH: {current_input[5]}. The temperature is {current_input[3]}°C with {current_input[4]}% humidity. Provide a short 3-point cultivation tip and a brief tailored fertilizer recommendation based on these specific soil metrics, naming specific fertilizers (e.g., Urea, Single Superphosphate (SSP), Muriate of Potash (MOP), DAP, or organic composts) that should be applied. Keep it concise in markdown. Write the response in {lang_name}."
                 gemini_tips = get_gemini_response(prompt)
                 
             if gemini_tips:
@@ -755,11 +755,11 @@ def crop_recommendation_page():
                 st.write(get_text("fallback_cult_tip2", lang))
                 st.write(get_text("fallback_cult_tip3", lang))
                 
-                # Embed Fallback Fertilizer logic dynamically based on current user inputs
-                fert_recs = get_fertilizer_recommendation(crop_name, current_input[0], current_input[1], current_input[2])
-                with st.expander(get_text("fertilizer_plan_title", lang, crop_name=crop_name.capitalize())):
-                    for rec in fert_recs:
-                        st.write(rec)
+            # Embed Fallback Fertilizer logic dynamically based on current user inputs
+            fert_recs = get_fertilizer_recommendation(crop_name, current_input[0], current_input[1], current_input[2])
+            with st.expander(get_text("fertilizer_plan_title", lang, crop_name=crop_name.capitalize())):
+                for rec in fert_recs:
+                    st.write(rec)
 
        
 # ==============================
