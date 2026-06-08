@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 load_dotenv(override=True)
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' 
 import streamlit as st
+from translations import get_text
 import numpy as np
 import json
 import sqlite3
@@ -87,6 +88,22 @@ def apply_custom_theme():
     """, unsafe_allow_html=True)
 
 apply_custom_theme()
+
+# ==============================
+# LANGUAGE CONFIGURATION
+# ==============================
+if "language" not in st.session_state:
+    st.session_state.language = "en"
+
+lang_map = {
+    "English": "en",
+    "हिन्दी (Hindi)": "hi",
+    "मराठी (Marathi)": "mr"
+}
+default_idx = list(lang_map.values()).index(st.session_state.language) if st.session_state.language in lang_map.values() else 0
+selected_lang = st.sidebar.selectbox("🌐 Language / भाषा", list(lang_map.keys()), index=default_idx)
+st.session_state.language = lang_map[selected_lang]
+lang = st.session_state.language
 
 MODEL_DISEASE_PATH = "models/plant_village_model_20260511_204122.pth"
 MODEL_CROP_PATH = "models/crop_model.pkl"
@@ -212,7 +229,7 @@ if "page" not in st.session_state:
 def logout():
     st.session_state.user = None
     st.session_state.page = "login"
-    st.success("You have been logged out!")
+    st.success(get_text("logout_success", lang))
 
 # ==============================
 # LOGIN PAGE
@@ -221,17 +238,17 @@ def login_page():
     # Center the form
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.title("🌿 AI Crop Assistant")
+        st.title(get_text("title", lang))
         
         # Simple login form in a container
         with st.container():
-            st.subheader("Login")
-            email = st.text_input("Email address", placeholder="Enter your email")
-            password = st.text_input("Password", type="password", placeholder="Enter your password")
+            st.subheader(get_text("login", lang))
+            email = st.text_input(get_text("email_address", lang), placeholder=get_text("enter_email", lang))
+            password = st.text_input(get_text("password", lang), type="password", placeholder=get_text("enter_password", lang))
             
-            if st.button("Sign In", use_container_width=True):
+            if st.button(get_text("sign_in", lang), use_container_width=True):
                 if not email or not password:
-                    st.warning("Please enter both email and password.")
+                    st.warning(get_text("warn_enter_credentials", lang))
                 else:
                     # If Firebase client is configured, try Firebase Auth first
                     if get_firebase_client is not None and sign_in is not None and get_firebase_client():
@@ -266,23 +283,23 @@ def login_page():
                                     "idToken": user_obj.get('idToken') if user_obj else None
                                 }
                                 st.session_state.page = "dashboard"
-                                st.success(f"Welcome back, {display_name}!")
+                                st.success(get_text("success_welcome_back", lang, name=display_name))
                             else:
-                                st.error("Invalid email or password.")
+                                st.error(get_text("error_invalid_credentials", lang))
                         except Exception as e:
-                            st.error(f"Auth failed: {e}")
+                            st.error(f"{get_text('error_invalid_credentials', lang)}: {e}")
                     else:
                         user = get_user(email, password)
                         if user:
                             st.session_state.user = {"id": user[0], "name": user[1], "email": user[2]}
                             st.session_state.page = "dashboard"
-                            st.success(f"Welcome back, {user[1]}!")
+                            st.success(get_text("success_welcome_back", lang, name=user[1]))
                         else:
-                            st.error("Invalid email or password.")
+                            st.error(get_text("error_invalid_credentials", lang))
             
             st.markdown("---")
-            st.write("Don't have an account?")
-            if st.button("Create New Account", use_container_width=True):
+            st.write(get_text("dont_have_account", lang))
+            if st.button(get_text("create_new_account", lang), use_container_width=True):
                 st.session_state.page = "register"
 
 # ==============================
@@ -292,24 +309,24 @@ def register_page():
     # Center the form
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.title("� AI Crop Assistant")
+        st.title(get_text("title", lang))
         
         # Simple registration form in a container
         with st.container():
-            st.subheader("Create Account")
+            st.subheader(get_text("create_account", lang))
             
             # Form fields with placeholders and help
-            name = st.text_input("Full Name", placeholder="Enter your full name")
-            email = st.text_input("Email address", placeholder="Enter your email")
-            password = st.text_input("Password", type="password", 
-                                   placeholder="Choose a password",
-                                   help="Choose a strong password")
+            name = st.text_input(get_text("full_name", lang), placeholder=get_text("enter_full_name", lang))
+            email = st.text_input(get_text("email_address", lang), placeholder=get_text("enter_email", lang))
+            password = st.text_input(get_text("password", lang), type="password", 
+                                   placeholder=get_text("choose_password", lang),
+                                   help=get_text("password_help", lang))
             
-            if st.button("Create Account", use_container_width=True):
+            if st.button(get_text("create_account", lang), use_container_width=True):
                 if not name or not email or not password:
-                    st.warning("Please fill in all fields.")
+                    st.warning(get_text("fill_all_fields", lang))
                 elif len(password) < 6:
-                    st.warning("Password should be at least 6 characters long.")
+                    st.warning(get_text("password_length_warn", lang))
                 else:
                     # If Firebase is available, create user there
                     if get_firebase_client is not None and sign_up is not None and get_firebase_client():
@@ -325,48 +342,48 @@ def register_page():
                             elif isinstance(resp, dict) and (resp.get('user') or resp.get('data')):
                                 created = True
                             if created:
-                                st.success("Account created successfully!")
-                                st.info("Please log in with your new account.")
+                                st.success(get_text("acc_created_success", lang))
+                                st.info(get_text("login_info", lang))
                                 st.session_state.page = "login"
                             else:
-                                st.error("Could not create account via Supabase.")
+                                st.error(get_text("could_not_create", lang))
                         except Exception as e:
-                            st.error(f"Registration failed: {e}")
+                            st.error(f"{get_text('could_not_create', lang)}: {e}")
                     else:
                         if register_user(name, email, password):
-                            st.success("Account created successfully!")
-                            st.info("Please log in with your new account.")
+                            st.success(get_text("acc_created_success", lang))
+                            st.info(get_text("login_info", lang))
                             st.session_state.page = "login"
                         else:
-                            st.error("Email already exists.")
-                            st.info("Please try logging in instead.")
+                            st.error(get_text("email_exists", lang))
+                            st.info(get_text("login_instead_info", lang))
             
             st.markdown("---")
-            st.write("Already have an account?")
-            if st.button("Back to Login", use_container_width=True):
+            st.write(get_text("already_have_account", lang))
+            if st.button(get_text("back_to_login", lang), use_container_width=True):
                 st.session_state.page = "login"
 
 # ==============================
 # SIDEBAR NAVIGATION
 # ==============================
 def show_navigation():
-    st.sidebar.title(f"👋 Welcome {st.session_state.user['name']}")
+    st.sidebar.title(get_text("sidebar_welcome", lang, name=st.session_state.user['name']))
     st.sidebar.markdown("---")
     
-    if st.sidebar.button("🏠 Dashboard"):
+    if st.sidebar.button(get_text("sidebar_dashboard", lang)):
         st.session_state.page = "dashboard"
         st.rerun()
         
-    if st.sidebar.button("🧪 Disease Detection"):
+    if st.sidebar.button(get_text("sidebar_disease", lang)):
         st.session_state.page = "disease_detection"
         st.rerun()
         
-    if st.sidebar.button("🌱 Crop Recommendation"):
+    if st.sidebar.button(get_text("sidebar_crop", lang)):
         st.session_state.page = "crop_recommendation"
         st.rerun()
     
     st.sidebar.markdown("---")
-    if st.sidebar.button("🚪 Logout"):
+    if st.sidebar.button(get_text("sidebar_logout", lang)):
         logout()
         st.rerun()
 
@@ -376,36 +393,36 @@ def show_navigation():
 def disease_detection_page():
     show_navigation()
     
-    st.title("🧪 Disease Detection")
+    st.title(get_text("disease_detection_title", lang))
     
     if disease_model is None:
         st.error("❌ Disease detection model is not loaded. Please check if the model file exists in the models folder.")
         return
 
     # Simple instructions
-    with st.expander("📋 How to use"):
-        st.write("1. Take a clear photo of the leaf")
-        st.write("2. Make sure the image is well-lit")
-        st.write("3. Upload the image below")
-        st.write("4. Click 'Analyze' to get results")
+    with st.expander(get_text("how_to_use", lang)):
+        st.write(get_text("disease_step1", lang))
+        st.write(get_text("disease_step2", lang))
+        st.write(get_text("disease_step3", lang))
+        st.write(get_text("disease_step4", lang))
 
     # Simple file upload
-    uploaded_file = st.file_uploader("Upload a leaf image:", type=["jpg", "jpeg", "png"])
+    uploaded_file = st.file_uploader(get_text("upload_leaf_img", lang), type=["jpg", "jpeg", "png"])
     if uploaded_file is not None:
         temp_path = os.path.join(UPLOAD_FOLDER, uploaded_file.name)
         with open(temp_path, "wb") as f:
             f.write(uploaded_file.read())
 
         # Display image
-        st.image(temp_path, caption="Uploaded Image", use_container_width=True)
+        st.image(temp_path, caption=get_text("uploaded_image_caption", lang), use_container_width=True)
         
         col1, col2 = st.columns([2, 1])
         with col2:
-            analyze_button = st.button("Analyze", use_container_width=True)
+            analyze_button = st.button(get_text("analyze", lang), use_container_width=True)
         
         if analyze_button:
             try:
-                with st.spinner('Analyzing image...'):
+                with st.spinner(get_text("analyzing_image", lang)):
                     # PyTorch Image Preprocessing
                     img = Image.open(temp_path).convert('RGB')
                     transform = transforms.Compose([
@@ -424,52 +441,53 @@ def disease_detection_page():
                     confidence = float(probs[top_idx])
 
                     # Display results clearly
-                    st.subheader("Results:")
-                    st.info(f"**Detected Condition**: {label}")
-                    st.write(f"Confidence: {confidence * 100:.1f}%")
+                    st.subheader(get_text("results", lang))
+                    st.info(get_text("detected_condition", lang, label=label))
+                    st.write(get_text("confidence_level", lang, confidence=confidence * 100))
 
-                    st.subheader("Recommendations")
+                    st.subheader(get_text("recommendations", lang))
                     if label == "Healthy":
-                        st.success("✅ Your crop looks healthy! No immediate treatment required.")
-                        st.write("Continue regular monitoring and good cultural practices.")
+                        st.success(get_text("healthy_msg", lang))
+                        st.write(get_text("healthy_desc", lang))
                     elif confidence >= 0.15:
                         if confidence >= 0.25:
-                            st.warning(f"⚠️ {label} detected with high confidence ({confidence*100:.1f}%).")
+                            st.warning(get_text("warning_high_conf", lang, label=label, confidence=confidence*100))
                         else:
-                            st.warning(f"⚠️ Possible {label} detected ({confidence*100:.1f}%). Consider retesting or manual inspection.")
+                            st.warning(get_text("warning_possible", lang, label=label, confidence=confidence*100))
                             
-                        with st.spinner('Generating AI treatment recommendations...'):
-                            prompt = f"A plant is affected by the disease '{label}'. Provide a brief 3-point list of actionable recommendations or organic treatments to manage this plant disease. Keep the response short, concise, and in markdown format."
+                        with st.spinner(get_text("generating_ai_tips", lang)):
+                            lang_name = "English" if lang == "en" else ("Hindi" if lang == "hi" else "Marathi")
+                            prompt = f"A plant is affected by the disease '{label}'. Provide a brief 3-point list of actionable recommendations or organic treatments to manage this plant disease. Keep the response short, concise, and in markdown format. Write the response in {lang_name}."
                             gemini_tips = get_gemini_response(prompt)
                             
                         if gemini_tips:
-                            st.markdown("✨ **AI Treatment Plan (Powered by Gemini)**")
+                            st.markdown(get_text("ai_treatment_plan", lang))
                             st.markdown(gemini_tips)
                         else:
                             # Fallback
-                            st.write("• Consider cultural controls and consult extension services.")
-                            st.write("• Remove and destroy infected material and improve airflow.")
+                            st.write(get_text("fallback_tip1", lang))
+                            st.write(get_text("fallback_tip2", lang))
                             
                         if confidence >= 0.6:
-                            st.info("Consult local agricultural extension services for pesticides, dosages and timings.")
+                            st.info(get_text("extension_info", lang))
                         else:
-                            st.info("If unsure, collect additional images from different leaves/angles.")
+                            st.info(get_text("retake_info", lang))
                     else:
-                        st.success("Detection confidence is low; no treatment recommended automatically.")
-                        st.write("Consider taking clearer images or consulting an expert if symptoms are visible.")
+                        st.success(get_text("low_confidence_msg", lang))
+                        st.write(get_text("low_confidence_desc", lang))
 
                 # Additional short messages
                 if label == "Healthy":
-                    st.success("✅ Your crop looks healthy!")
+                    st.success(get_text("healthy_success", lang))
                 elif label == "Powdery":
-                    st.warning("⚠️ Powdery mildew detected. See recommendations above.")
+                    st.warning(get_text("powdery_warning", lang))
                 elif label == "Rust":
-                    st.warning("⚠️ Rust detected. See recommendations above.")
+                    st.warning(get_text("rust_warning", lang))
 
                 # Attempt to save prediction to Firebase
                 try:
                     if insert_prediction is not None and get_firebase_client is not None and get_firebase_client():
-                        with st.spinner("☁️ Syncing scan to Firebase..."):
+                        with st.spinner(get_text("syncing_firebase", lang)):
                             payload = {
                                 "user_email": st.session_state.user['email'] if st.session_state.user else "Anonymous",
                                 "type": "disease",
@@ -479,14 +497,14 @@ def disease_detection_page():
                             }
                             token = st.session_state.user.get('idToken') if st.session_state.user else None
                             insert_prediction(payload, token=token)
-                        st.success("☁️ **Success:** Scan securely backed up to your Firebase Cloud!")
+                        st.success(get_text("sync_success", lang))
                     else:
-                        st.info("ℹ️ Note: Firebase connection not detected. Scan saved locally only.")
+                        st.info(get_text("firebase_not_detected", lang))
                 except Exception as e:
-                    st.error(f"❌ **Firebase Error:** Backup failed. Details: {str(e)}")
+                    st.error(get_text("firebase_error", lang, error=str(e)))
 
             except Exception as e:
-                st.error(f"Prediction failed: {e}")
+                st.error(get_text("prediction_failed", lang, error=str(e)))
 
 IDEAL_NPK = {
     'rice': {'N': 90, 'P': 40, 'K': 40},
@@ -518,23 +536,61 @@ def get_fertilizer_recommendation(crop_name, user_n, user_p, user_k):
     ideal = IDEAL_NPK.get(crop, {'N': 50, 'P': 50, 'K': 50})
     recs = []
     
+    # Get current language from session state
+    lang = st.session_state.get('language', 'en')
+    
     if user_n < ideal['N'] - 10:
-        recs.append("🌱 **Nitrogen** is low. Add a Nitrogen-rich fertilizer (e.g., Urea, Blood Meal).")
+        if lang == "hi":
+            recs.append("🌱 **नाइट्रोजन** कम है। नाइट्रोजन युक्त उर्वरक डालें (जैसे, यूरिया, ब्लड मील)।")
+        elif lang == "mr":
+            recs.append("🌱 **नायट्रोजन** कमी आहे. नायट्रोजनयुक्त खत घाला (उदा., युरिया, ब्लड मील).")
+        else:
+            recs.append("🌱 **Nitrogen** is low. Add a Nitrogen-rich fertilizer (e.g., Urea, Blood Meal).")
     elif user_n > ideal['N'] + 15:
-        recs.append("⚠️ **Nitrogen** is too high! Avoid adding more N-fertilizers as it may stunt fruiting.")
+        if lang == "hi":
+            recs.append("⚠️ **नाइट्रोजन** बहुत अधिक है! अधिक एन-उर्वरक डालने से बचें क्योंकि यह फलने को रोक सकता है।")
+        elif lang == "mr":
+            recs.append("⚠️ **नायट्रोजन** जास्त आहे! जास्त एन-खते घालणे टाळा कारण यामुळे फळ येणे थांबू शकते.")
+        else:
+            recs.append("⚠️ **Nitrogen** is too high! Avoid adding more N-fertilizers as it may stunt fruiting.")
         
     if user_p < ideal['P'] - 10:
-        recs.append("🌱 **Phosphorus** is low. Add Phosphorus-rich fertilizer (e.g., Superphosphate, Bone Meal).")
+        if lang == "hi":
+            recs.append("🌱 **फास्फोरस** कम है। फास्फोरस युक्त उर्वरक डालें (जैसे, सुपरफॉस्फेट, बोन मील)।")
+        elif lang == "mr":
+            recs.append("🌱 **फॉस्फरस** कमी आहे. फॉस्फरसयुक्त खत घाला (उदा., सुपरफॉस्फेट, बोन मील).")
+        else:
+            recs.append("🌱 **Phosphorus** is low. Add Phosphorus-rich fertilizer (e.g., Superphosphate, Bone Meal).")
     elif user_p > ideal['P'] + 15:
-        recs.append("⚠️ **Phosphorus** is high. Avoid P-fertilizers to prevent zinc/iron deficiency.")
+        if lang == "hi":
+            recs.append("⚠️ **फास्फोरस** अधिक है। जस्ता/लोहे की कमी को रोकने के लिए पी-उर्वरक डालने से बचें।")
+        elif lang == "mr":
+            recs.append("⚠️ **फॉस्फरस** जास्त आहे. जस्त/लोहाची कमतरता रोखण्यासाठी पी-खते घालणे टाळा.")
+        else:
+            recs.append("⚠️ **Phosphorus** is high. Avoid P-fertilizers to prevent zinc/iron deficiency.")
         
     if user_k < ideal['K'] - 10:
-        recs.append("🌱 **Potassium** is low. Add Potassium-rich fertilizer (e.g., Muriate of Potash, Kelp Meal).")
+        if lang == "hi":
+            recs.append("🌱 **पोटेशियम** कम है। पोटेशियम युक्त उर्वरक डालें (जैसे, म्यूरिएट ऑफ पोटाश, केल्प मील)।")
+        elif lang == "mr":
+            recs.append("🌱 **पोटॅशियम** कमी आहे. पोटॅशियमयुक्त खत घाला (उदा., म्युरिएट ऑफ पोटॅश, केल्प मील).")
+        else:
+            recs.append("🌱 **Potassium** is low. Add Potassium-rich fertilizer (e.g., Muriate of Potash, Kelp Meal).")
     elif user_k > ideal['K'] + 15:
-        recs.append("⚠️ **Potassium** is high. Avoid K-fertilizers to prevent nutrient lock-out.")
+        if lang == "hi":
+            recs.append("⚠️ **पोटेशियम** अधिक है। पोषक तत्वों के जमाव को रोकने के लिए के-उर्वरक डालने से बचें।")
+        elif lang == "mr":
+            recs.append("⚠️ **पोटॅशियम** जास्त आहे. पोषक घटकांचे ब्लॉकेज रोखण्यासाठी के-खते घालणे टाळा.")
+        else:
+            recs.append("⚠️ **Potassium** is high. Avoid K-fertilizers to prevent nutrient lock-out.")
         
     if not recs:
-        recs.append("✅ Soil NPK levels are in the optimal range for this crop! Maintain regular composting.")
+        if lang == "hi":
+            recs.append("✅ इस फसल के लिए मिट्टी का एनपीके स्तर इष्टतम सीमा में है! नियमित खाद डालना जारी रखें।")
+        elif lang == "mr":
+            recs.append("✅ या पिकासाठी मातीचे एनपीके पातळी इष्टतम मर्यादेत आहे! नियमित कंपोस्ट खत घालणे सुरू ठेवा.")
+        else:
+            recs.append("✅ Soil NPK levels are in the optimal range for this crop! Maintain regular composting.")
         
     return recs
 
@@ -581,33 +637,34 @@ def fetch_weather(city_name):
 # ==============================
 def crop_recommendation_page():
     show_navigation()
+    lang = st.session_state.get('language', 'en')
 
-    st.title("🌱 Crop Recommendation")
+    st.title(get_text("crop_rec_title", lang))
 
     if crop_model is None:
         st.error("❌ Crop recommendation model is not loaded. Please check if the model file exists in the models folder.")
         return
 
     # Simple instructions in expander
-    with st.expander("📋 How to use"):
-        st.write("1. Enter soil test results (NPK values)")
-        st.write("2. Add environmental conditions")
-        st.write("3. Click 'Get Recommendation'")
-        st.write("4. View suggested crop for your conditions")
+    with st.expander(get_text("how_to_use", lang)):
+        st.write(get_text("crop_rec_step1", lang))
+        st.write(get_text("crop_rec_step2", lang))
+        st.write(get_text("crop_rec_step3", lang))
+        st.write(get_text("crop_rec_step4", lang))
 
     # Two main sections
     col1, col2 = st.columns(2)
     
     with col1:
-        st.subheader("Soil Parameters")
-        N = st.number_input("Nitrogen (N)", 0, 200, 50, help="mg/kg")
-        P = st.number_input("Phosphorus (P)", 0, 200, 50, help="mg/kg")
-        K = st.number_input("Potassium (K)", 0, 200, 50, help="mg/kg")
-        ph = st.number_input("Soil pH", 0.0, 14.0, 6.5)
+        st.subheader(get_text("soil_parameters", lang))
+        N = st.number_input(get_text("nitrogen", lang), 0, 200, 50, help=get_text("mg_kg", lang))
+        P = st.number_input(get_text("phosphorus", lang), 0, 200, 50, help=get_text("mg_kg", lang))
+        K = st.number_input(get_text("potassium", lang), 0, 200, 50, help=get_text("mg_kg", lang))
+        ph = st.number_input(get_text("soil_ph", lang), 0.0, 14.0, 6.5)
     
     with col2:
-        st.subheader("Environmental Conditions")
-        city = st.text_input("📍 Auto-Fetch Weather by City", placeholder="e.g. Mumbai, Tokyo")
+        st.subheader(get_text("environmental_conditions", lang))
+        city = st.text_input(get_text("auto_fetch_weather", lang), placeholder=get_text("weather_placeholder", lang))
         
         # Initialize default session states for weather
         if 'temp_val' not in st.session_state:
@@ -617,35 +674,35 @@ def crop_recommendation_page():
         if 'rain_val' not in st.session_state:
             st.session_state.rain_val = 100.0
             
-        if st.button("Fetch Climate Data", use_container_width=True):
+        if st.button(get_text("fetch_climate_data", lang), use_container_width=True):
             if city:
-                with st.spinner(f"Getting data for {city}..."):
+                with st.spinner(get_text("getting_weather_data", lang, city=city)):
                     t, h, r = fetch_weather(city)
                     if t is not None:
                         st.session_state.temp_val = float(t)
                         st.session_state.hum_val = float(h)
                         st.session_state.rain_val = float(r)
-                        st.success(f"Loaded weather for {city}!")
+                        st.success(get_text("weather_loaded_success", lang, city=city))
                     else:
-                        st.error("Could not fetch data. Please try another city or enter manually.")
+                        st.error(get_text("weather_load_failed", lang))
         
-        temperature = st.number_input("Temperature", 0.0, 50.0, key="temp_val", help="°C")
-        humidity = st.number_input("Humidity", 0.0, 100.0, key="hum_val", help="%")
-        rainfall = st.number_input("Rainfall (7 Days)", 0.0, 500.0, key="rain_val", help="mm")
+        temperature = st.number_input(get_text("temperature", lang), 0.0, 50.0, key="temp_val", help="°C")
+        humidity = st.number_input(get_text("humidity", lang), 0.0, 100.0, key="hum_val", help="%")
+        rainfall = st.number_input(get_text("rainfall", lang), 0.0, 500.0, key="rain_val", help="mm")
 
     # Show only the top recommendation
     k = 1
 
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        analyze = st.button("Get Recommendation", use_container_width=True)
+        analyze = st.button(get_text("get_recommendation", lang), use_container_width=True)
 
     current_input = (float(N), float(P), float(K), float(temperature), float(humidity), float(ph), float(rainfall))
 
     if analyze:
         input_data = np.array([[N, P, K, temperature, humidity, ph, rainfall]])
         try:
-            with st.spinner('Analyzing conditions...'):
+            with st.spinner(get_text("analyzing_conditions", lang)):
                 recommendations = []
                 if hasattr(crop_model, 'predict_proba'):
                     probs = crop_model.predict_proba(input_data)[0]
@@ -663,8 +720,8 @@ def crop_recommendation_page():
                 st.session_state['last_k'] = k
 
         except Exception as e:
-            st.error(f"❌ Model prediction failed: {str(e)}")
-            st.error("Please ensure the model file is properly trained and saved.")
+            st.error(get_text("model_pred_failed", lang, error=str(e)))
+            st.error(get_text("model_pred_failed_desc", lang))
 
     # Display stored recommendations (if any)
     if st.session_state.get('last_recommendations'):
@@ -674,32 +731,33 @@ def crop_recommendation_page():
 
         # warn if inputs changed since recommendation
         if last_input != current_input:
-            st.warning('Inputs have changed since the last recommendation — click Get Recommendation to update results.')
+            st.warning(get_text("inputs_changed_warning", lang))
 
-        st.subheader("Recommended Crop")
+        st.subheader(get_text("recommended_crop_title", lang))
         for crop_name, prob in last_recs[:k]:
-            st.success(f"{crop_name} — Confidence: {prob*100:.1f}%")
+            st.success(get_text("recommended_crop_result", lang, crop_name=crop_name, prob=prob*100))
 
-        st.subheader("Cultivation Tips")
+        st.subheader(get_text("cultivation_tips_title", lang))
         
         for crop_name, prob in last_recs[:k]:
             st.markdown(f"### 🌾 **{crop_name.capitalize()}**")
             
-            with st.spinner(f'Generating AI cultivation guide for {crop_name}...'):
-                prompt = f"The user wants to grow '{crop_name}'. Their soil conditions are: Nitrogen: {current_input[0]} mg/kg, Phosphorus: {current_input[1]} mg/kg, Potassium: {current_input[2]} mg/kg, pH: {current_input[5]}. The temperature is {current_input[3]}°C with {current_input[4]}% humidity. Provide a short 3-point cultivation tip and a brief tailored fertilizer recommendation based on these specific soil metrics. Keep it concise in markdown."
+            with st.spinner(get_text("generating_ai_guide", lang, crop_name=crop_name)):
+                lang_name = "English" if lang == "en" else ("Hindi" if lang == "hi" else "Marathi")
+                prompt = f"The user wants to grow '{crop_name}'. Their soil conditions are: Nitrogen: {current_input[0]} mg/kg, Phosphorus: {current_input[1]} mg/kg, Potassium: {current_input[2]} mg/kg, pH: {current_input[5]}. The temperature is {current_input[3]}°C with {current_input[4]}% humidity. Provide a short 3-point cultivation tip and a brief tailored fertilizer recommendation based on these specific soil metrics. Keep it concise in markdown. Write the response in {lang_name}."
                 gemini_tips = get_gemini_response(prompt)
                 
             if gemini_tips:
-                st.markdown("✨ **AI Cultivation Guide (Powered by Gemini)**")
+                st.markdown(get_text("ai_cultivation_guide", lang))
                 st.markdown(gemini_tips)
             else:
-                st.write("• Follow local variety and sowing-time recommendations.")
-                st.write("• Base fertilizer applications on a soil test and maintain soil organic matter.")
-                st.write("• Monitor regularly for pests and diseases and adopt IPM.")
+                st.write(get_text("fallback_cult_tip1", lang))
+                st.write(get_text("fallback_cult_tip2", lang))
+                st.write(get_text("fallback_cult_tip3", lang))
                 
                 # Embed Fallback Fertilizer logic dynamically based on current user inputs
                 fert_recs = get_fertilizer_recommendation(crop_name, current_input[0], current_input[1], current_input[2])
-                with st.expander(f"🌿 Fertilizer Plan for {crop_name.capitalize()}"):
+                with st.expander(get_text("fertilizer_plan_title", lang, crop_name=crop_name.capitalize())):
                     for rec in fert_recs:
                         st.write(rec)
 
@@ -710,29 +768,29 @@ def crop_recommendation_page():
 def dashboard_page():
     show_navigation()
     
-    st.title("🌾 AI Crop Assistant")
-    st.write("Welcome! Choose a service to get started:")
+    st.title(get_text("dashboard_title", lang))
+    st.write(get_text("dashboard_desc", lang))
     
     # Main services in two columns
     col1, col2 = st.columns(2, gap="large")
     
     with col1:
-        st.info("🧪 **Disease Detection**\n\nUpload leaf images to check for diseases")
-        if st.button("Disease Detection", use_container_width=True):
+        st.info(f"🧪 **{get_text('disease_detection', lang)}**\n\n{get_text('disease_detection_desc', lang)}")
+        if st.button(get_text("disease_detection", lang), use_container_width=True):
             st.session_state.page = "disease_detection"
             st.rerun()
             
     with col2:
-        st.info("🌱 **Crop Recommendation**\n\nGet crop suggestions based on soil data")
-        if st.button("Crop Recommendation", use_container_width=True):
+        st.info(f"🌱 **{get_text('crop_recommendation', lang)}**\n\n{get_text('crop_recommendation_desc', lang)}")
+        if st.button(get_text("crop_recommendation", lang), use_container_width=True):
             st.session_state.page = "crop_recommendation"
             st.rerun()
     
     # Quick guide
     st.markdown("---")
-    st.subheader("📋 Quick Guide")
-    st.write("1. **Disease Detection**: Take a clear photo of a leaf and upload it")
-    st.write("2. **Crop Recommendation**: Enter your soil test results and weather data")
+    st.subheader(get_text("quick_guide", lang))
+    st.write(get_text("quick_guide_step1", lang))
+    st.write(get_text("quick_guide_step2", lang))
     
     # Simple image at the bottom
     st.image(
