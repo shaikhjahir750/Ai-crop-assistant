@@ -29,15 +29,22 @@ from datetime import datetime, timedelta
 def get_gemini_response(prompt):
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
-        return None
+        raise ValueError("Gemini API key is not configured in .env.")
+    
     try:
         genai.configure(api_key=api_key)
         model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(prompt)
         return response.text
-    except Exception as e:
-        print(f"Gemini API Error: {e}")
-        return None
+    except Exception as e25:
+        print(f"Gemini 2.5 Error: {e25}. Trying Gemini 1.5...")
+        try:
+            model = genai.GenerativeModel('gemini-1.5-flash')
+            response = model.generate_content(prompt)
+            return response.text
+        except Exception as e15:
+            print(f"Gemini 1.5 Error: {e15}")
+            raise e15
 
 # ==============================
 # APP CONFIG
@@ -458,7 +465,10 @@ def disease_detection_page():
                         with st.spinner(get_text("generating_ai_tips", lang)):
                             lang_name = "English" if lang == "en" else ("Hindi" if lang == "hi" else "Marathi")
                             prompt = f"A plant is affected by the disease '{label}'. Provide a brief 3-point list of actionable recommendations, treatments, or specific organic/chemical remedy names (e.g., names of specific fungicides/pesticides/bio-fertilizers) to manage this plant disease. Keep the response short, concise, and in markdown format. Write the response in {lang_name}."
-                            gemini_tips = get_gemini_response(prompt)
+                            try:
+                                gemini_tips = get_gemini_response(prompt)
+                            except Exception as e:
+                                gemini_tips = None
                             
                         if gemini_tips:
                             st.markdown(get_text("ai_treatment_plan", lang))
@@ -745,7 +755,10 @@ def crop_recommendation_page():
             with st.spinner(get_text("generating_ai_guide", lang, crop_name=crop_name)):
                 lang_name = "English" if lang == "en" else ("Hindi" if lang == "hi" else "Marathi")
                 prompt = f"The user wants to grow '{crop_name}'. Their soil conditions are: Nitrogen: {current_input[0]} mg/kg, Phosphorus: {current_input[1]} mg/kg, Potassium: {current_input[2]} mg/kg, pH: {current_input[5]}. The temperature is {current_input[3]}°C with {current_input[4]}% humidity. Provide a short 3-point cultivation tip and a brief tailored fertilizer recommendation based on these specific soil metrics, naming specific fertilizers (e.g., Urea, Single Superphosphate (SSP), Muriate of Potash (MOP), DAP, or organic composts) that should be applied. Keep it concise in markdown. Write the response in {lang_name}."
-                gemini_tips = get_gemini_response(prompt)
+                try:
+                    gemini_tips = get_gemini_response(prompt)
+                except Exception as e:
+                    gemini_tips = None
                 
             if gemini_tips:
                 st.markdown(get_text("ai_cultivation_guide", lang))
