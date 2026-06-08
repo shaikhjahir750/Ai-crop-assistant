@@ -27,12 +27,12 @@ def get_client():
     }
     return pyrebase.initialize_app(config)
 
-def insert_prediction(payload: dict):
+def insert_prediction(payload: dict, token: str = None):
     client = get_client()
     if client is None:
         raise RuntimeError("Firebase client not configured. Set FIREBASE keys in .env.")
     db = client.database()
-    return db.child("predictions").push(payload)
+    return db.child("predictions").push(payload, token=token)
 
 def fetch_recommendations(limit: int = 10):
     client = get_client()
@@ -54,8 +54,8 @@ def sign_up(email: str, password: str, user_metadata: dict = None):
     user = auth.create_user_with_email_and_password(email, password)
     
     if user_metadata and 'name' in user_metadata:
-        db.child("users").child(user['localId']).set({"name": user_metadata['name'], "email": email})
-    return {"user": {"email": email, "name": user_metadata.get('name', '')}}
+        db.child("users").child(user['localId']).set({"name": user_metadata['name'], "email": email}, token=user['idToken'])
+    return {"user": {"email": email, "name": user_metadata.get('name', ''), "idToken": user['idToken'], "localId": user['localId']}}
 
 def sign_in(email: str, password: str):
     client = get_client()
@@ -66,8 +66,8 @@ def sign_in(email: str, password: str):
         user = auth.sign_in_with_email_and_password(email, password)
         # Fetch name if available
         db = client.database()
-        user_info = db.child("users").child(user['localId']).get()
-        name = user_info.val().get('name') if user_info.val() else email
-        return {"user": {"email": email, "name": name}}
+        user_info = db.child("users").child(user['localId']).get(token=user['idToken'])
+        name = user_info.val().get('name') if (user_info and user_info.val()) else email
+        return {"user": {"email": email, "name": name, "idToken": user['idToken'], "localId": user['localId']}}
     except Exception as e:
         raise e

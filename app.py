@@ -259,7 +259,12 @@ def login_page():
                                     success = True
                                     display_name = user_obj.get('name') or user_obj.get('email') or display_name
                             if success:
-                                st.session_state.user = {"id": None, "name": display_name, "email": email}
+                                st.session_state.user = {
+                                    "id": user_obj.get('localId') if user_obj else None,
+                                    "name": display_name,
+                                    "email": email,
+                                    "idToken": user_obj.get('idToken') if user_obj else None
+                                }
                                 st.session_state.page = "dashboard"
                                 st.success(f"Welcome back, {display_name}!")
                             else:
@@ -472,7 +477,8 @@ def disease_detection_page():
                                 "confidence": float(confidence),
                                 "image_path": temp_path
                             }
-                            insert_prediction(payload)
+                            token = st.session_state.user.get('idToken') if st.session_state.user else None
+                            insert_prediction(payload, token=token)
                         st.success("☁️ **Success:** Scan securely backed up to your Firebase Cloud!")
                     else:
                         st.info("ℹ️ Note: Firebase connection not detected. Scan saved locally only.")
