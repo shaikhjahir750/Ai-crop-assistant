@@ -1,6 +1,8 @@
 import os
 from dotenv import load_dotenv
-load_dotenv(override=True)
+# Load .env using absolute path relative to this script
+current_dir = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(dotenv_path=os.path.join(current_dir, ".env"), override=True)
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' 
 import streamlit as st
 from translations import get_text
@@ -112,11 +114,178 @@ selected_lang = st.sidebar.selectbox("🌐 Language / भाषा", list(lang_m
 st.session_state.language = lang_map[selected_lang]
 lang = st.session_state.language
 
-MODEL_DISEASE_PATH = "models/plant_village_model_20260511_204122.pth"
-MODEL_CROP_PATH = "models/crop_model.pkl"
-INDICES_PATH = "models/class_indices_20260511_204122.json"
-UPLOAD_FOLDER = "static/uploads"
+MODEL_DISEASE_PATH = os.path.join(current_dir, "models", "plant_village_model_20260511_204122.pth")
+MODEL_CROP_PATH = os.path.join(current_dir, "models", "crop_model.pkl")
+INDICES_PATH = os.path.join(current_dir, "models", "class_indices_20260511_204122.json")
+UPLOAD_FOLDER = os.path.join(current_dir, "static", "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+DISEASE_GUIDE_PATH = os.path.join(current_dir, "Copy of disease_management_and_cultivation_guide.txt")
+CROP_GUIDE_PATH = os.path.join(current_dir, "cultivation_guide_22_crops.txt")
+
+# Helper to normalize string for disease matching
+def normalize_str(s):
+    return "".join(c for c in s.lower() if c.isalnum())
+
+# Parser for disease guide
+def parse_disease_guide(file_path):
+    if not os.path.exists(file_path):
+        return {}
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+    except Exception:
+        return {}
+        
+    disease_map = {}
+    current_crop_names = []
+    current_disease_name = None
+    current_tips = []
+    current_fert = []
+    current_mode = None
+    
+    for line in lines:
+        line_str = line.strip()
+        if not line_str:
+            continue
+            
+        if line_str.startswith("## ") and not line_str.startswith("### "):
+            if current_crop_names and current_disease_name:
+                for cn in current_crop_names:
+                    disease_map[(cn, current_disease_name.lower())] = {
+                        "tips": "\n".join(f"- {t}" for t in current_tips),
+                        "fertilizer": "\n".join(f"- {f}" for f in current_fert)
+                    }
+                current_disease_name = None
+                current_tips = []
+                current_fert = []
+                current_mode = None
+                
+            crop_part = line_str[3:]
+            for emoji in ["🍎", "🫑", "🍒", "🌽", "🍇", "🍑", "🥔", "🍓", "🍅"]:
+                crop_part = crop_part.replace(emoji, "")
+            crop_part = crop_part.split("(")[0].strip()
+            current_crop_names = [c.strip().lower() for c in crop_part.split("/")]
+            
+        elif line_str.startswith("### "):
+            if current_crop_names and current_disease_name:
+                for cn in current_crop_names:
+                    disease_map[(cn, current_disease_name.lower())] = {
+                        "tips": "\n".join(f"- {t}" for t in current_tips),
+                        "fertilizer": "\n".join(f"- {f}" for f in current_fert)
+                    }
+                current_tips = []
+                current_fert = []
+                current_mode = None
+                
+            disease_part = line_str[4:]
+            current_disease_name = disease_part.split("(")[0].strip()
+            
+        elif current_disease_name:
+            if line_str.startswith("Cultivation Tips:") or line_str.startswith("* Cultivation Tips:"):
+                current_mode = "tips"
+                parts = line_str.split(":", 1)
+                content_str = parts[1].strip() if len(parts) > 1 else ""
+                if content_str:
+                    current_tips.append(content_str)
+            elif line_str.startswith("Fertilizer Recommendation:") or line_str.startswith("* Fertilizer Recommendation:"):
+                current_mode = "fert"
+                parts = line_str.split(":", 1)
+                content_str = parts[1].strip() if len(parts) > 1 else ""
+                if content_str:
+                    current_fert.append(content_str)
+            elif line_str.startswith("*") or line_str.startswith("-"):
+                content_str = line_str.lstrip("*- ").strip()
+                if current_mode == "tips":
+                    current_tips.append(content_str)
+                elif current_mode == "fert":
+                    current_fert.append(content_str)
+                    
+    if current_crop_names and current_disease_name:
+        for cn in current_crop_names:
+            disease_map[(cn, current_disease_name.lower())] = {
+                "tips": "\n".join(f"- {t}" for t in current_tips),
+                "fertilizer": "\n".join(f"- {f}" for f in current_fert)
+            }
+            
+    return disease_map
+
+# Parser for crop guide
+def parse_crop_guide(file_path):
+    if not os.path.exists(file_path):
+        return {}
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+    except Exception:
+        return {}
+        
+    crop_map = {}
+    current_crop = None
+    current_tips = []
+    current_fert = []
+    current_mode = None
+    
+    for line in lines:
+        line_str = line.strip()
+        if not line_str:
+            continue
+            
+        if line_str.startswith("### "):
+            if current_crop:
+                crop_map[current_crop] = {
+                    "tips": "\n".join(f"- {t}" for t in current_tips),
+                    "fertilizer": "\n".join(f"- {f}" for f in current_fert)
+                }
+                current_tips = []
+                current_fert = []
+                current_mode = None
+                
+            crop_name = line_str[4:].split("(")[0].strip().lower()
+            current_crop = crop_name
+            
+        elif current_crop:
+            if "**Cultivation Tips:**" in line_str or "Cultivation Tips:" in line_str:
+                current_mode = "tips"
+                parts = line_str.split(":", 1)
+                content_str = parts[1].strip() if len(parts) > 1 else ""
+                content_str = content_str.lstrip("*- ").strip()
+                if content_str:
+                    current_tips.append(content_str)
+            elif "**Fertilizer Recommendation:**" in line_str or "Fertilizer Recommendation:" in line_str:
+                current_mode = "fert"
+                parts = line_str.split(":", 1)
+                content_str = parts[1].strip() if len(parts) > 1 else ""
+                content_str = content_str.lstrip("*- ").strip()
+                if content_str:
+                    current_fert.append(content_str)
+            elif line_str.startswith("*") or line_str.startswith("-"):
+                content_str = line_str.lstrip("*- ").strip()
+                if current_mode == "tips":
+                    current_tips.append(content_str)
+                elif current_mode == "fert":
+                    current_fert.append(content_str)
+            elif line_str.startswith("##") and not line_str.startswith("### "):
+                if current_crop:
+                    crop_map[current_crop] = {
+                        "tips": "\n".join(f"- {t}" for t in current_tips),
+                        "fertilizer": "\n".join(f"- {f}" for f in current_fert)
+                    }
+                    current_crop = None
+                    current_tips = []
+                    current_fert = []
+                    current_mode = None
+                    
+    if current_crop:
+        crop_map[current_crop] = {
+            "tips": "\n".join(f"- {t}" for t in current_tips),
+            "fertilizer": "\n".join(f"- {f}" for f in current_fert)
+        }
+        
+    return crop_map
+
+STATIC_DISEASE_MAP = parse_disease_guide(DISEASE_GUIDE_PATH)
+STATIC_CROP_MAP = parse_crop_guide(CROP_GUIDE_PATH)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -190,9 +359,11 @@ crop_model = load_crop_model()
 # ==============================
 # DATABASE (SQLite)
 # ==============================
+DB_PATH = os.path.join(current_dir, "database", "crop_app.db")
+
 def init_db():
-    os.makedirs("database", exist_ok=True)
-    conn = sqlite3.connect("database/crop_app.db")
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS users (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -204,7 +375,7 @@ def init_db():
     conn.close()
 
 def get_user(email, password):
-    conn = sqlite3.connect("database/crop_app.db")
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("SELECT * FROM users WHERE email=? AND password=?", (email, password))
     user = c.fetchone()
@@ -213,7 +384,7 @@ def get_user(email, password):
 
 def register_user(name, email, password):
     try:
-        conn = sqlite3.connect("database/crop_app.db")
+        conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
         c.execute("INSERT INTO users (name, email, password) VALUES (?, ?, ?)", (name, email, password))
         conn.commit()
@@ -474,9 +645,52 @@ def disease_detection_page():
                             st.markdown(get_text("ai_treatment_plan", lang))
                             st.markdown(gemini_tips)
                         else:
-                            # Fallback
-                            st.write(get_text("fallback_tip1", lang))
-                            st.write(get_text("fallback_tip2", lang))
+                            # Fallback using parsed static guide
+                            parts = label.split(" - ")
+                            crop = parts[0].strip().lower()
+                            disease = parts[1].strip().lower()
+                            
+                            crop_options = [crop]
+                            if "(" in crop:
+                                cleaned_crop = crop.split("(")[0].strip()
+                                paren_crop = crop.split("(")[1].replace(")", "").strip()
+                                crop_options.extend([cleaned_crop, paren_crop])
+                                
+                            static_data = None
+                            for co in crop_options:
+                                norm_disease = normalize_str(disease)
+                                for (map_crop, map_disease), content in STATIC_DISEASE_MAP.items():
+                                    norm_map_disease = normalize_str(map_disease)
+                                    if map_crop == co and (norm_disease == norm_map_disease or norm_disease in norm_map_disease or norm_map_disease in norm_disease):
+                                        static_data = content
+                                        break
+                                if static_data:
+                                    break
+                                    
+                            if static_data:
+                                static_title = "📋 Static Reference Recommendations"
+                                if lang == "hi":
+                                    static_title = "📋 स्थिर संदर्भ सिफारिशें"
+                                elif lang == "mr":
+                                    static_title = "📋 स्थिर संदर्भ शिफारसी"
+                                st.markdown(f"### {static_title}")
+                                
+                                tips_title = "🛠️ Cultivation Tips"
+                                if lang == "hi":
+                                    tips_title = "🛠️ खेती के टिप्स"
+                                elif lang == "mr":
+                                    tips_title = "🛠️ शेतीसाठी टिप्स"
+                                st.markdown(f"**{tips_title}:**\n{static_data['tips']}")
+                                
+                                fert_title = "🌱 Fertilizer Recommendation"
+                                if lang == "hi":
+                                    fert_title = "🌱 उर्वरक की सिफारिश"
+                                elif lang == "mr":
+                                    fert_title = "🌱 खतांची शिफारस"
+                                st.markdown(f"**{fert_title}:**\n{static_data['fertilizer']}")
+                            else:
+                                st.write(get_text("fallback_tip1", lang))
+                                st.write(get_text("fallback_tip2", lang))
                             
                         if confidence >= 0.6:
                             st.info(get_text("extension_info", lang))
@@ -764,9 +978,34 @@ def crop_recommendation_page():
                 st.markdown(get_text("ai_cultivation_guide", lang))
                 st.markdown(gemini_tips)
             else:
-                st.write(get_text("fallback_cult_tip1", lang))
-                st.write(get_text("fallback_cult_tip2", lang))
-                st.write(get_text("fallback_cult_tip3", lang))
+                # Fallback using parsed static guide
+                crop_key = crop_name.lower().strip()
+                static_data = STATIC_CROP_MAP.get(crop_key)
+                if static_data:
+                    static_title = "📋 Static Reference Cultivation Guide"
+                    if lang == "hi":
+                        static_title = "📋 स्थिर संदर्भ खेती गाइड"
+                    elif lang == "mr":
+                        static_title = "📋 स्थिर संदर्भ शेती मार्गदर्शक"
+                    st.markdown(f"### {static_title}")
+                    
+                    tips_title = "🛠️ Cultivation Tips"
+                    if lang == "hi":
+                        tips_title = "🛠️ खेती के टिप्स"
+                    elif lang == "mr":
+                        tips_title = "🛠️ शेतीसाठी टिप्स"
+                    st.markdown(f"**{tips_title}:**\n{static_data['tips']}")
+                    
+                    fert_title = "🌱 Fertilizer Recommendation"
+                    if lang == "hi":
+                        fert_title = "🌱 उर्वरक की सिफारिश"
+                    elif lang == "mr":
+                        fert_title = "🌱 खतांची शिफारस"
+                    st.markdown(f"**{fert_title}:**\n{static_data['fertilizer']}")
+                else:
+                    st.write(get_text("fallback_cult_tip1", lang))
+                    st.write(get_text("fallback_cult_tip2", lang))
+                    st.write(get_text("fallback_cult_tip3", lang))
                 
             # Embed Fallback Fertilizer logic dynamically based on current user inputs
             fert_recs = get_fertilizer_recommendation(crop_name, current_input[0], current_input[1], current_input[2])

@@ -1,0 +1,155 @@
+# Disease Management & Cultivation Guide
+
+Direct, actionable cultivation tips and fertilizer recommendations to manage and prevent major diseases across apples, bell peppers, cherries, corn, grapes, peaches, potatoes, strawberries, and tomatoes.
+
+---
+
+## 🍎 Apple (सेब)
+
+### Apple Scab (सेब की पपड़ी)
+* Cultivation Tips: Prune the tree canopy to improve air circulation and sunlight penetration. Rake and destroy fallen leaves in autumn to eliminate overwintering spores.
+* Fertilizer Recommendation: Apply balanced NPK (10:10:10) in early spring; avoid excessive Nitrogen which creates dense foliage susceptible to fungus. Spray Zinc Sulfate to strengthen leaf tissues.
+
+### Black Rot (काला सड़न)
+* Cultivation Tips: Prune out dead wood, mummified fruits, and cankers during winter dormancy. Burn or bury the infected debris away from the orchard.
+* Fertilizer Recommendation: Apply well-composted Farmyard Manure (FYM) to improve soil vitality. Supplement with Muriate of Potash (MOP) to enhance disease resistance.
+
+### Cedar Apple Rust (देवदार सेब जंग)
+* Cultivation Tips: Avoid planting apple trees near Juneberry or Cedar trees. Remove rust galls from nearby cedar trees before spring rains.
+* Fertilizer Recommendation: Use Single Superphosphate (SSP) to strengthen root and plant defense systems. Apply a Borax foliar spray pre-blooming.
+
+### Healthy (स्वस्थ)
+* Cultivation Tips: Maintain a clean orchard floor. Prune annually to maintain fruit-bearing wood and ensure adequate winter chilling hours.
+* Fertilizer Recommendation: Apply generous amounts of Compost and MOP in winter. Spray Calcium Nitrate during fruit development to prevent bitter pit.
+
+---
+
+## 🫑 Bell Pepper (शिमला मिर्च)
+
+### Bacterial Spot (जीवाणु धब्बा)
+* Cultivation Tips: Avoid overhead irrigation; use drip lines to keep foliage dry. Practice a 3-year crop rotation with non-solanaceous crops.
+* Fertilizer Recommendation: Reduce Urea usage, as excess nitrogen softens plant tissues. Apply Potassium Nitrate to strengthen the cell walls against bacterial entry.
+
+### Healthy (स्वस्थ)
+* Cultivation Tips: Grow in well-drained, porous sandy-loam soil. Stake plants early to prevent heavy branches from breaking.
+* Fertilizer Recommendation: Mix Vermicompost and DAP into the soil before transplanting. Use Magnesium Sulfate (Epsom Salt) to improve greening and fruit size.
+
+---
+
+## 🍒 Cherry (चेरी)
+
+### Powdery Mildew (चूर्णिल आसिता)
+* Cultivation Tips: Plant in areas with maximum morning sunlight to dry dew quickly. Keep the interior canopy open through strategic summer pruning.
+* Fertilizer Recommendation: Apply Ammonium Sulfate in split spring doses. Avoid late-summer fertilization to stop tender, disease-prone new growth.
+
+### Healthy (स्वस्थ)
+* Cultivation Tips: Ensure deep, well-drained loamy soil with a neutral pH. Provide regular, deep watering during fruit development.
+* Fertilizer Recommendation: Apply a balanced organic fertilizer like Neem Cake mixed with SSP in late winter before bud break.
+
+---
+
+## 🌽 Corn / Maize (मक्का)
+
+### Cercospora Leaf Spot / Gray Leaf Spot (सर्कॉस्पोरा पत्ती धब्बा)
+* Cultivation Tips: Practice deep autumn plowing to bury infected crop residue. Rotate crops with soybeans or alfalfa for at least one year.
+* Fertilizer Recommendation: Apply MOP to boost potassium levels, which helps the stalks resist fungal breakdown. Top-dress with Urea carefully.
+
+### Common Rust (सामान्य जंग)
+* Cultivation Tips: Plant rust-resistant hybrids early in the season. Maintain proper plant-to-plant spacing (20 cm) to optimize airflow.
+* Fertilizer Recommendation: Apply a balanced basal dose of NPK (12:32:16). Use Zinc Sulfate (25 kg/ha) to correct micronutrient deficiencies that weaken immunity.
+
+### Northern Leaf Blight (उत्तरी पत्ती झुलसा)
+* Cultivation Tips: Destroy infected stalks immediately after harvest. Avoid overhead sprinkler irrigation during warm, humid weather.
+* Fertilizer Recommendation: Apply DAP at sowing to ensure rapid early root establishment. Follow up with split doses of Urea at the knee-high stage.
+
+### Healthy (स्वस्थ)
+* Cultivation Tips: Keep fields weed-free during the first 45 days. Ensure critical irrigation during the tasseling and silking stages.
+* Fertilizer Recommendation: Broadcast Compost/FYM before sowing. Apply Urea, SSP, and MOP in a 4:2:1 ratio to support rapid vegetative growth.
+
+---
+
+## 🍇 Grape (अंगूर)
+
+### Black Rot (काला सड़न)
+* Cultivation Tips: Destroy all mummified berries left on the vines or ground. Keep canes trained neatly on trellises to maximize air exposure.
+* Fertilizer Recommendation: Minimize heavy nitrogen inputs. Apply Sulfate of Potash (SOP) to improve skin thickness and berry defense.
+
+### Esca / Black Measles (एस्का / काली खसरा)
+* Cultivation Tips: Disinfect pruning tools between vines using rubbing alcohol. Protect large pruning wounds with a commercial wound sealer.
+* Fertilizer Recommendation: Apply well-rotted organic manure enriched with Trichoderma bio-fungicide to improve root zone health.
+
+### Leaf Blight / Isariopsis Leaf Spot (पत्ती झुलसा)
+* Cultivation Tips: Rake and burn fallen leaves post-harvest to clear out fungal spores. Avoid working in the vineyard when leaves are wet.
+* Fertilizer Recommendation: Apply a balanced dose of DAP and SOP post-pruning to help the vine recover its energy reserves.
+
+### Healthy (स्वस्थ)
+* Cultivation Tips: Grow on a Bower system trellis in gravelly or sandy-loam soils. Complete strict winter pruning to regulate yield.
+* Fertilizer Recommendation: Give regular doses of SOP and DAP during early spring. Spray Boron during flowering to optimize fruit set.
+
+---
+
+## 🍑 Peach (आड़ू)
+
+### Bacterial Spot (जीवाणु धब्बा)
+* Cultivation Tips: Plant trees in wind-sheltered but sunny areas. Avoid orchard layouts that channel high winds, which scratch leaves and admit bacteria.
+* Fertilizer Recommendation: Maintain balanced fertility; avoid high Urea inputs. Apply Calcium Nitrate to enhance leaf cuticle thickness.
+
+### Healthy (स्वस्थ)
+* Cultivation Tips: Ensure deep, sandy-loam soil with excellent internal drainage. Thin out excess fruits in spring to prevent branch breakage.
+* Fertilizer Recommendation: Apply a basal layer of FYM and SSP in winter. Supplement with MOP during the pit-hardening stage of the fruit.
+
+---
+
+## 🥔 Potato (आलू)
+
+### Early Blight (अगेती झुलसा)
+* Cultivation Tips: Maintain stable soil moisture; alternating dry and wet spells stresses the plant and triggers this blight. Harvest only when vines are completely dead.
+* Fertilizer Recommendation: Ensure adequate nitrogen using Ammonium Sulfate. Apply MOP to improve skin finish and reduce bruise-induced infections.
+
+### Late Blight (पछेती झुलसा)
+* Cultivation Tips: Plant only certified, disease-free seed tubers. Eliminate all volunteer potato plants and cull piles near the field.
+* Fertilizer Recommendation: Use SSP to supply phosphorus and sulfur. Avoid top-dressing nitrogen late in the season, as it delays maturity and increases blight risk.
+
+### Healthy (स्वस्थ)
+* Cultivation Tips: Earth up the soil around the base of the plants regularly to protect growing tubers from sunlight and pests.
+* Fertilizer Recommendation: Apply DAP and MOP as a basal layout in furrows during planting. Use Bio-fertilizers like Azotobacter to boost yield.
+
+---
+
+## 🍓 Strawberry (स्ट्रॉबेरी)
+
+### Leaf Scorch (पत्ता झुलसना)
+* Cultivation Tips: Space plants 30 cm apart to prevent crowd-induced humidity. Remove older, dark-spotted leaves during routine maintenance.
+* Fertilizer Recommendation: Apply low-salt water-soluble NPK (19:19:19) via drip fertigation. Avoid excessive Urea, which makes leaves tender and prone to scorch.
+
+### Healthy (स्वस्थ)
+* Cultivation Tips: Plant in raised beds lined with plastic or straw mulch to keep berries clean and away from direct wet soil.
+* Fertilizer Recommendation: Feed with Vermicompost and Bone Meal before planting. Apply Potassium Sulfate during fruit development to maximize sweetness.
+
+---
+
+## 🍅 Tomato (टमाटर)
+
+### Bacterial Spot (जीवाणु धब्बा)
+* Cultivation Tips: Work in the fields only when the plants are completely dry. Pull and destroy heavily infected plants immediately.
+* Fertilizer Recommendation: Supplement soil with Calcium Nitrate to strengthen cells. Reduce direct applications of fast-release nitrogen like Urea.
+
+### Early Blight (अगेती झुलसा)
+* Cultivation Tips: Prune the lower branches up to 30 cm from the ground to prevent soil-borne spores from splashing onto leaves. Mulch the soil base.
+* Fertilizer Recommendation: Apply a high-potassium fertilizer like NPK (13:0:45) to help the plant resist early leaf drop and stress.
+
+### Late Blight (पछेती झुलसा)
+* Cultivation Tips: Monitor weather forecasts; cool, foggy, and wet conditions trigger this destructive blight. Ensure maximum spacing for airflow.
+* Fertilizer Recommendation: Apply SSP to encourage robust stem structure. Avoid overhead watering that washes out soil nutrients and spreads spores.
+
+### Septoria Leaf Spot (सेप्टोरिया पत्ती धब्बा)
+* Cultivation Tips: Stake and cage tomato vines to keep all foliage off the ground. Control solanaceous weeds (like nightshade) around the field boundary.
+* Fertilizer Recommendation: Mix well-rotted manure into the bed. Use a foliar application of Magnesium Sulfate to keep older leaves strong and active.
+
+### Yellow Leaf Curl Virus (पीला पत्ता मरोड़ विषाणु)
+* Cultivation Tips: Use fine mesh nets in nurseries to block Whiteflies (the virus vectors). Remove and burn infected "zombie" plants immediately.
+* Fertilizer Recommendation: Apply Neem Cake to the soil to naturally deter soil-dwelling pupae. Use balanced NPK to keep plants vigorous enough to tolerate minor attacks.
+
+### Healthy (स्वस्थ)
+* Cultivation Tips: Grow in rich, deep, well-drained loamy soil with a pH of 6.0–6.8. Provide consistent watering to prevent fruit splitting.
+* Fertilizer Recommendation: Apply DAP and MOP at planting. Top-dress with Calcium Nitrate during fruit setting to prevent Blossom End Rot.

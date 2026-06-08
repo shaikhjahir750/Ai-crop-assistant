@@ -6,7 +6,10 @@ try:
 except Exception:
     pyrebase = None
 
-load_dotenv(override=True)
+# Load .env using absolute path relative to this script
+current_dir = os.path.dirname(os.path.abspath(__file__))
+dotenv_path = os.path.join(current_dir, "..", ".env")
+load_dotenv(dotenv_path=dotenv_path, override=True)
 
 def get_client():
     if pyrebase is None:
